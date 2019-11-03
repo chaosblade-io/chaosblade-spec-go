@@ -1,0 +1,348 @@
+/*
+ * Copyright 1999-2019 Alibaba Group Holding Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package spec
+
+import (
+	"fmt"
+	"strings"
+)
+
+// ExpModelCommandSpec defines the command interface for the experimental plugin
+type ExpModelCommandSpec interface {
+	// Name returns the target name
+	Name() string
+
+	// Scope returns the experiment scope
+	Scope() string
+
+	// ShortDesc returns short description for the command
+	ShortDesc() string
+
+	// LongDesc returns full description for the command
+	LongDesc() string
+
+	// Example returns use case for the command
+	Example() string
+
+	// Actions returns the list of actions supported by the command
+	Actions() []ExpActionCommandSpec
+
+	// Flags returns the command flags
+	Flags() []ExpFlagSpec
+
+	// SetFlags
+	SetFlags(flags []ExpFlagSpec)
+}
+
+// ExpActionCommandSpec defines the action command interface for the experimental plugin
+type ExpActionCommandSpec interface {
+	// Name returns the action name
+	Name() string
+
+	// Aliases returns command alias names
+	Aliases() []string
+
+	// ShortDesc returns short description for the action
+	ShortDesc() string
+
+	// LongDesc returns full description for the action
+	LongDesc() string
+
+	// Matchers returns the list of matchers supported by the action
+	Matchers() []ExpFlagSpec
+
+	// Flags returns the list of flags supported by the action
+	Flags() []ExpFlagSpec
+
+	// ExpExecutor returns the action command ExpExecutor
+	Executor() Executor
+
+	// SetExecutor
+	SetExecutor(executor Executor)
+}
+
+type ExpFlagSpec interface {
+	FlagName() string
+	FlagDesc() string
+	FlagNoArgs() bool
+	FlagRequired() bool
+}
+
+// ExpFlag defines the action flag
+type ExpFlag struct {
+	// Name returns the flag FlagName
+	Name string `yaml:"name"`
+
+	// Desc returns the flag description
+	Desc string `yaml:"desc"`
+
+	// NoArgs means no arguments
+	NoArgs bool `yaml:"noArgs"`
+
+	// Required means necessary or not
+	Required bool `yaml:"required"`
+}
+
+func (f *ExpFlag) FlagName() string {
+	return f.Name
+}
+
+func (f *ExpFlag) FlagDesc() string {
+	return f.Desc
+}
+
+func (f *ExpFlag) FlagNoArgs() bool {
+	return f.NoArgs
+}
+
+func (f *ExpFlag) FlagRequired() bool {
+	return f.Required
+}
+
+// BaseExpModelCommandSpec defines the common struct of the implementation of ExpModelCommandSpec
+type BaseExpModelCommandSpec struct {
+	ExpScope   string
+	ExpActions []ExpActionCommandSpec
+	ExpFlags   []ExpFlagSpec
+}
+
+// Scope default value is "" means localhost
+func (b *BaseExpModelCommandSpec) Scope() string {
+	return ""
+}
+
+func (b *BaseExpModelCommandSpec) Actions() []ExpActionCommandSpec {
+	return b.ExpActions
+}
+
+func (b *BaseExpModelCommandSpec) Flags() []ExpFlagSpec {
+	return b.ExpFlags
+}
+
+func (b *BaseExpModelCommandSpec) SetFlags(flags []ExpFlagSpec) {
+	b.ExpFlags = flags
+}
+
+// BaseExpActionCommandSpec defines the common struct of the implementation of ExpActionCommandSpec
+type BaseExpActionCommandSpec struct {
+	ActionMatchers []ExpFlagSpec
+	ActionFlags    []ExpFlagSpec
+	ActionExecutor Executor
+}
+
+func (b *BaseExpActionCommandSpec) Matchers() []ExpFlagSpec {
+	return b.ActionMatchers
+}
+
+func (b *BaseExpActionCommandSpec) Flags() []ExpFlagSpec {
+	return b.ActionFlags
+}
+
+func (b *BaseExpActionCommandSpec) Executor() Executor {
+	return b.ActionExecutor
+}
+
+func (b *BaseExpActionCommandSpec) SetExecutor(executor Executor) {
+	b.ActionExecutor = executor
+}
+
+// ActionModel for yaml file
+type ActionModel struct {
+	ActionName      string    `yaml:"action"`
+	ActionAliases   []string  `yaml:"aliases,flow,omitempty"`
+	ActionShortDesc string    `yaml:"shortDesc"`
+	ActionLongDesc  string    `yaml:"longDesc"`
+	ActionMatchers  []ExpFlag `yaml:"matchers,omitempty"`
+	ActionFlags     []ExpFlag `yaml:"flags,omitempty"`
+	executor        Executor
+}
+
+func (am *ActionModel) SetExecutor(executor Executor) {
+	am.executor = executor
+}
+
+func (am *ActionModel) Executor() Executor {
+	return am.executor
+}
+
+func (am *ActionModel) Name() string {
+	return am.ActionName
+}
+
+func (am *ActionModel) Aliases() []string {
+	return am.ActionAliases
+}
+
+func (am *ActionModel) ShortDesc() string {
+	return am.ActionShortDesc
+}
+
+func (am *ActionModel) LongDesc() string {
+	return am.ActionLongDesc
+}
+
+func (am *ActionModel) Matchers() []ExpFlagSpec {
+	flags := make([]ExpFlagSpec, 0)
+	for idx := range am.ActionMatchers {
+		flags = append(flags, &am.ActionMatchers[idx])
+	}
+	return flags
+}
+
+func (am *ActionModel) Flags() []ExpFlagSpec {
+	flags := make([]ExpFlagSpec, 0)
+	for idx := range am.ActionFlags {
+		flags = append(flags, &am.ActionFlags[idx])
+	}
+	return flags
+}
+
+type ExpPrepareModel struct {
+	PrepareType     string    `yaml:"type"`
+	PrepareFlags    []ExpFlag `yaml:"flags"`
+	PrepareRequired bool      `yaml:"required"`
+}
+
+type ExpCommandModel struct {
+	ExpName         string          `yaml:"target"`
+	ExpShortDesc    string          `yaml:"shortDesc"`
+	ExpLongDesc     string          `yaml:"longDesc"`
+	ExpExample      string          `yaml:"example"`
+	ExpActions      []ActionModel   `yaml:"actions"`
+	ExpExecutor     Executor        `yaml:"-"`
+	ExpFlags        []ExpFlag       `yaml:"flags,omitempty"`
+	ExpScope        string          `yaml:"scope"`
+	ExpPrepareModel ExpPrepareModel `yaml:"prepare,omitempty"`
+	ExpSubTargets   []string        `yaml:"subTargets,flow,omitempty"`
+}
+
+func (ecm *ExpCommandModel) Scope() string {
+	return ecm.ExpScope
+}
+
+func (ecm *ExpCommandModel) Name() string {
+	return ecm.ExpName
+}
+
+func (ecm *ExpCommandModel) ShortDesc() string {
+	return ecm.ExpShortDesc
+}
+
+func (ecm *ExpCommandModel) LongDesc() string {
+	return ecm.ExpLongDesc
+}
+
+func (ecm *ExpCommandModel) Example() string {
+	return ecm.ExpExample
+}
+
+func (ecm *ExpCommandModel) Actions() []ExpActionCommandSpec {
+	specs := make([]ExpActionCommandSpec, 0)
+	for idx := range ecm.ExpActions {
+		ecm.ExpActions[idx].executor = ecm.ExpExecutor
+		specs = append(specs, &ecm.ExpActions[idx])
+	}
+	return specs
+}
+
+func (ecm *ExpCommandModel) Flags() []ExpFlagSpec {
+	flags := make([]ExpFlagSpec, 0)
+	for idx := range ecm.ExpFlags {
+		flags = append(flags, &ecm.ExpFlags[idx])
+	}
+	return flags
+}
+
+func (ecm *ExpCommandModel) SetFlags(flags []ExpFlagSpec) {
+	// do nothing
+}
+
+type Models struct {
+	Version string            `yaml:"version"`
+	Kind    string            `yaml:"kind"`
+	Models  []ExpCommandModel `yaml:"items"`
+}
+
+type Empty struct{}
+
+// ConvertExpMatchersToString returns the flag arguments for cli
+func ConvertExpMatchersToString(expModel *ExpModel, createExcludeKeyFunc func() map[string]Empty) string {
+	matchers := ""
+	excludeKeys := createExcludeKeyFunc()
+	flags := expModel.ActionFlags
+	if flags != nil && len(flags) > 0 {
+		for name, value := range flags {
+			// exclude unsupported key in blade
+			if _, ok := excludeKeys[name]; ok {
+				continue
+			}
+			if value == "" {
+				continue
+			}
+			if strings.Contains(value, " ") {
+				value = strings.ReplaceAll(value, " ", "-")
+			}
+			matchers = fmt.Sprintf(`%s --%s=%s`, matchers, name, value)
+		}
+	}
+	return matchers
+}
+
+// ConvertCommandsToExpModel returns the ExpModel by action, target and flags
+func ConvertCommandsToExpModel(action, target, rules string) *ExpModel {
+	model := &ExpModel{
+		Target:      target,
+		ActionName:  action,
+		ActionFlags: make(map[string]string, 0),
+	}
+	flags := strings.Split(rules, " ")
+	for _, flag := range flags {
+		keyAndValue := strings.SplitN(flag, "=", 2)
+		if len(keyAndValue) != 2 {
+			continue
+		}
+		key := keyAndValue[0][2:]
+		model.ActionFlags[key] = keyAndValue[1]
+	}
+	return model
+}
+
+// AddFlagsToModelSpec
+func AddFlagsToModelSpec(flagsFunc func() []ExpFlagSpec, expSpecs ...ExpModelCommandSpec) {
+	flagSpecs := flagsFunc()
+	for _, expSpec := range expSpecs {
+		flags := expSpec.Flags()
+		if flags == nil {
+			flags = make([]ExpFlagSpec, 0)
+		}
+		flags = append(flags, flagSpecs...)
+		expSpec.SetFlags(flags)
+	}
+}
+
+// AddExecutorToModelSpec
+func AddExecutorToModelSpec(executor Executor, expSpecs ...ExpModelCommandSpec) {
+	for _, expSpec := range expSpecs {
+		actions := expSpec.Actions()
+		if actions == nil {
+			continue
+		}
+		for _, action := range actions {
+			action.SetExecutor(executor)
+		}
+	}
+}
