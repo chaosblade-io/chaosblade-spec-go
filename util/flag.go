@@ -17,9 +17,9 @@
 package util
 
 import (
-	"strings"
-	"strconv"
 	"fmt"
+	"strconv"
+	"strings"
 )
 
 // ParseIntegerListToStringSlice func parses the multiple integer values to string slice.

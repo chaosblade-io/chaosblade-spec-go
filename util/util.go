@@ -17,21 +17,21 @@
 package util
 
 import (
-	"path"
-	"math/rand"
+	"context"
 	"encoding/hex"
-	"time"
-	"os"
+	"fmt"
+	"io/ioutil"
 	"log"
-	"reflect"
-	"os/user"
+	"math/rand"
 	"net"
 	"net/http"
-	"io/ioutil"
-	"context"
+	"os"
 	"os/exec"
+	"os/user"
+	"path"
 	"path/filepath"
-	"fmt"
+	"reflect"
+	"time"
 )
 
 var proPath string

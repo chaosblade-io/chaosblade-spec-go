@@ -19,11 +19,11 @@ package channel
 import (
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
-	"os"
-	"strconv"
 
 	"github.com/sirupsen/logrus"
 

@@ -19,8 +19,8 @@ package util
 import (
 	"os"
 	"os/signal"
-	"syscall"
 	"runtime"
+	"syscall"
 
 	"github.com/sirupsen/logrus"
 )

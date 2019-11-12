@@ -17,9 +17,9 @@
 package util
 
 import (
-	"os"
 	"io"
 	"io/ioutil"
+	"os"
 
 	"gopkg.in/yaml.v2"
 

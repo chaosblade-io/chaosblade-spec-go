@@ -17,11 +17,11 @@
 package util
 
 import (
-	"time"
+	"flag"
+	"io"
 	"os"
 	"path"
-	"io"
-	"flag"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
