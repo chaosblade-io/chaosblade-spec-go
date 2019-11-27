@@ -64,6 +64,8 @@ func (exp *ExpModel) GetFlags() string {
 	return strings.Join(flags, " ")
 }
 
+const UnknownUid = "unknown"
+
 func SetDestroyFlag(ctx context.Context, suid string) context.Context {
 	return context.WithValue(ctx, DestroyKey, suid)
 }

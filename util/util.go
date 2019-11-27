@@ -32,6 +32,8 @@ import (
 	"path/filepath"
 	"reflect"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 var proPath string
@@ -129,6 +131,7 @@ func GetSpecifyingUserHome(username string) string {
 
 // Curl url
 func Curl(url string) (string, error, int) {
+	logrus.Infoln(url)
 	trans := http.Transport{
 		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
 			return net.DialTimeout(network, addr, 10*time.Second)
