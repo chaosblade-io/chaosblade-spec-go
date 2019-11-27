@@ -91,10 +91,11 @@ func ConvertSpecToModels(commandSpec spec.ExpModelCommandSpec, prepare spec.ExpP
 				matchers := make([]spec.ExpFlag, 0)
 				for _, m := range action.Matchers() {
 					matchers = append(matchers, spec.ExpFlag{
-						Name:     m.FlagName(),
-						Desc:     m.FlagDesc(),
-						NoArgs:   m.FlagNoArgs(),
-						Required: m.FlagRequired(),
+						Name:                  m.FlagName(),
+						Desc:                  m.FlagDesc(),
+						NoArgs:                m.FlagNoArgs(),
+						Required:              m.FlagRequired(),
+						RequiredWhenDestroyed: m.FlagRequiredWhenDestroyed(),
 					})
 				}
 				return matchers
@@ -103,25 +104,28 @@ func ConvertSpecToModels(commandSpec spec.ExpModelCommandSpec, prepare spec.ExpP
 				flags := make([]spec.ExpFlag, 0)
 				for _, m := range action.Flags() {
 					flags = append(flags, spec.ExpFlag{
-						Name:     m.FlagName(),
-						Desc:     m.FlagDesc(),
-						NoArgs:   m.FlagNoArgs(),
-						Required: m.FlagRequired(),
+						Name:                  m.FlagName(),
+						Desc:                  m.FlagDesc(),
+						NoArgs:                m.FlagNoArgs(),
+						Required:              m.FlagRequired(),
+						RequiredWhenDestroyed: m.FlagRequiredWhenDestroyed(),
 					})
 				}
 				for _, m := range commandSpec.Flags() {
 					flags = append(flags, spec.ExpFlag{
-						Name:     m.FlagName(),
-						Desc:     m.FlagDesc(),
-						NoArgs:   m.FlagNoArgs(),
-						Required: m.FlagRequired(),
+						Name:                  m.FlagName(),
+						Desc:                  m.FlagDesc(),
+						NoArgs:                m.FlagNoArgs(),
+						Required:              m.FlagRequired(),
+						RequiredWhenDestroyed: m.FlagRequiredWhenDestroyed(),
 					})
 				}
 				flags = append(flags,
 					spec.ExpFlag{
-						Name:     "timeout",
-						Desc:     "set timeout for experiment",
-						Required: false,
+						Name:                  "timeout",
+						Desc:                  "set timeout for experiment",
+						Required:              false,
+						RequiredWhenDestroyed: false,
 					},
 				)
 				return flags
