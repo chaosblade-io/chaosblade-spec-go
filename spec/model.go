@@ -306,7 +306,7 @@ func ConvertExpMatchersToString(expModel *ExpModel, createExcludeKeyFunc func() 
 				continue
 			}
 			if strings.Contains(value, " ") {
-				value = strings.ReplaceAll(value, " ", "-")
+				value = strings.ReplaceAll(value, " ", "@@##")
 			}
 			matchers = fmt.Sprintf(`%s --%s=%s`, matchers, name, value)
 		}
@@ -328,7 +328,7 @@ func ConvertCommandsToExpModel(action, target, rules string) *ExpModel {
 			continue
 		}
 		key := keyAndValue[0][2:]
-		model.ActionFlags[key] = keyAndValue[1]
+		model.ActionFlags[key] = strings.ReplaceAll(keyAndValue[1], "@@##", " ")
 	}
 	return model
 }
