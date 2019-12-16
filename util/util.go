@@ -17,6 +17,7 @@
 package util
 
 import (
+	"bytes"
 	"context"
 	"encoding/hex"
 	"fmt"
@@ -150,6 +151,32 @@ func Curl(url string) (string, error, int) {
 		return "", err, resp.StatusCode
 	}
 	return string(bytes), nil, resp.StatusCode
+}
+
+// PostCurl
+func PostCurl(url string, body []byte) (string, error, int) {
+	trans := http.Transport{
+		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+			return net.DialTimeout(network, addr, 10*time.Second)
+		},
+	}
+	client := http.Client{
+		Transport: &trans,
+	}
+	req, err := http.NewRequest("POST", url, bytes.NewReader(body))
+	if err != nil {
+		return "", err, 0
+	}
+	response, err := client.Do(req)
+	if err != nil {
+		return "", err, 0
+	}
+	defer response.Body.Close()
+	bytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", err, response.StatusCode
+	}
+	return string(bytes), nil, response.StatusCode
 }
 
 // CheckPortInUse returns true if the port is in use, otherwise returns false.
