@@ -21,10 +21,9 @@ import (
 	"io"
 	"os"
 	"path"
-	"time"
 
-	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
+	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
 
 const (
@@ -34,10 +33,17 @@ const (
 
 const BladeLog = "chaosblade.log"
 
-var Debug bool
+var (
+	Debug bool
+	LogLevel string
+)
 
 func AddDebugFlag() {
 	flag.BoolVar(&Debug, "debug", false, "set debug mode")
+}
+
+func AddLogLevelFlag()  {
+	flag.StringVar(&LogLevel,"log-level","info","level of logging wanted.")
 }
 
 // InitLog invoked after flag parsed
@@ -53,17 +59,18 @@ func InitLog(programType int) {
 		MaxAge:     2, // days
 		Compress:   false,
 	}
-	logrus.SetOutput(&fileWriterWithoutErr{output})
-
-	formatter := &logrus.TextFormatter{
-		FullTimestamp:   true,
-		TimestampFormat: time.RFC3339Nano,
-	}
-	logrus.SetFormatter(formatter)
-
-	if Debug {
-		logrus.SetLevel(logrus.DebugLevel)
-	}
+	logf.SetLogger(Logger(output))
+	//logrus.SetOutput(&fileWriterWithoutErr{output})
+	//
+	//formatter := &logrus.TextFormatter{
+	//	FullTimestamp:   true,
+	//	TimestampFormat: time.RFC3339Nano,
+	//}
+	//logrus.SetFormatter(formatter)
+	//
+	//if Debug {
+	//	logrus.SetLevel(logrus.DebugLevel)
+	//}
 }
 
 func GetLogPath(programType int) (string, error) {
