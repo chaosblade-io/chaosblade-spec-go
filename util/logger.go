@@ -3,6 +3,7 @@ package util
 import (
 	"fmt"
 	"io"
+	syslog "log"
 	"os"
 	"strconv"
 	"strings"
@@ -11,7 +12,6 @@ import (
 	"github.com/go-logr/zapr"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	syslog "log"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
 
