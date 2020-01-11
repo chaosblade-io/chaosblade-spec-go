@@ -111,7 +111,7 @@ func GetPidsByProcessName(processName string, ctx context.Context) ([]string, er
 		}
 	}
 	response := Run(ctx, "ps",
-		fmt.Sprintf(`%s | grep "%s" %s %s | grep -v -w grep | grep -v -w chaos_killprocess | grep -v -w chaos_stopprocess | awk '{print $2}' | tr '\n' ' '`,
+		fmt.Sprintf(`%s | grep "%s" %s %s | grep -v -w grep | grep -v -w chaosblade| grep -v -w chaos_killprocess | grep -v -w chaos_stopprocess | awk '{print $2}' | tr '\n' ' '`,
 			psArgs, processName, otherGrepInfo, excludeGrepInfo))
 	if !response.Success {
 		return nil, fmt.Errorf(response.Err)
