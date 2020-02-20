@@ -61,3 +61,55 @@ func TestRemove(t *testing.T) {
 		})
 	}
 }
+
+func TestRemoveDuplicates(t *testing.T) {
+	type args struct {
+		items []string
+	}
+	tests := []struct {
+		name string
+		args args
+		want []string
+	}{
+		{name: "testEmptySlice", args: args{items: []string{}}, want: []string{}},
+		{name: "testDuplicatesSlice", args: args{items: []string{"1", "2", "3", "1", "3"}}, want: []string{"1", "2", "3"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := RemoveDuplicates(tt.args.items); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("RemoveDuplicates() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestParseIntegerListToStringSlice(t *testing.T) {
+	type args struct {
+		flagValue string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []string
+		wantErr bool
+	}{
+		{name: "split by comma", args: args{flagValue: "8080,8081,8082"},
+			want: []string{"8080", "8081", "8082"}},
+		{name: "split by connector", args: args{flagValue: "8080-8083"},
+			want: []string{"8080", "8081", "8082", "8083"}},
+		{name: "split by comma and connector", args: args{flagValue: "7001,8080-8083"},
+			want: []string{"7001", "8080", "8081", "8082", "8083"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ParseIntegerListToStringSlice(tt.args.flagValue)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ParseIntegerListToStringSlice() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ParseIntegerListToStringSlice() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
