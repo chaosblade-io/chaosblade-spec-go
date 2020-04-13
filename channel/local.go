@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -233,14 +234,23 @@ func execScript(ctx context.Context, script, args string) *spec.Response {
 	if ctx == context.Background() {
 		ctx = newCtx
 	}
+	isBladeCmd := isBladeCommand(script)
 	script = strings.Replace(script, " ", `\ `, -1)
 	logrus.Debugf("script: %s %s", script, args)
 	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", script+" "+args)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		errMsg := fmt.Sprintf(string(output) + " " + err.Error())
+		errMsg := string(output)
+		if !isBladeCmd {
+			errMsg = fmt.Sprintf("%s %s", errMsg, err.Error())
+		}
 		return spec.ReturnFail(spec.Code[spec.ExecCommandError], errMsg)
 	}
 	result := string(output)
 	return spec.ReturnSuccess(result)
+}
+
+func isBladeCommand(script string) bool {
+	return script == path.Join(util.GetProgramPath(), "blade") ||
+		script == "blade"
 }
