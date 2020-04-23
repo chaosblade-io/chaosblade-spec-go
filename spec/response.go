@@ -46,6 +46,7 @@ const (
 	DatabaseError           = "DatabaseError"
 	EnvironmentError        = "EnvironmentError"
 	NoWritePermission       = "NoWritePermission"
+	RemoveRecordError       = "RemoveRecordError"
 	ParameterEmpty          = "ParameterEmpty"
 	ParameterTypeError      = "ParameterTypeError"
 	IllegalParameters       = "IllegalParameters"
@@ -99,6 +100,7 @@ var Code = map[string]CodeType{
 	DatabaseError:           {520, "execute db error"},
 	EnvironmentError:        {521, "environment error"},
 	NoWritePermission:       {522, "no write permission"},
+	RemoveRecordError:       {530, "remove record or resource err"},
 	ParameterEmpty:          {600, "parameter is empty"},
 	ParameterTypeError:      {601, "parameter type error"},
 	IllegalParameters:       {602, "illegal parameters"},
