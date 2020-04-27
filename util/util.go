@@ -154,7 +154,7 @@ func Curl(url string) (string, error, int) {
 }
 
 // PostCurl
-func PostCurl(url string, body []byte) (string, error, int) {
+func PostCurl(url string, body []byte, contentType string) (string, error, int) {
 	trans := http.Transport{
 		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
 			return net.DialTimeout(network, addr, 10*time.Second)
@@ -166,6 +166,9 @@ func PostCurl(url string, body []byte) (string, error, int) {
 	req, err := http.NewRequest("POST", url, bytes.NewReader(body))
 	if err != nil {
 		return "", err, 0
+	}
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
 	}
 	response, err := client.Do(req)
 	if err != nil {
