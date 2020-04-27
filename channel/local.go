@@ -93,6 +93,9 @@ func (l *LocalChannel) GetPidsByProcessName(processName string, ctx context.Cont
 			excludeGrepInfo = fmt.Sprintf(`| grep -v -w %s`, excludeProcessString)
 		}
 	}
+	if strings.HasPrefix(processName, "-") {
+		processName = fmt.Sprintf(`\%s`, processName)
+	}
 	response := l.Run(ctx, "ps",
 		fmt.Sprintf(`%s | grep "%s" %s %s | grep -v -w grep | grep -v -w chaos_killprocess | grep -v -w chaos_stopprocess | awk '{print $2}' | tr '\n' ' '`,
 			psArgs, processName, otherGrepInfo, excludeGrepInfo))
