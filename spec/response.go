@@ -26,6 +26,7 @@ import (
 const (
 	IgnoreCode              = "IgnoreCode"
 	OK                      = "OK"
+	ReturnOKDirectly        = "ReturnOKDirectly"
 	InvalidTimestamp        = "InvalidTimestamp"
 	Forbidden               = "Forbidden"
 	HandlerNotFound         = "HandlerNotFound"
@@ -76,6 +77,7 @@ type CodeType struct {
 var Code = map[string]CodeType{
 	IgnoreCode:              {100, "ignore code"},
 	OK:                      {200, "success"},
+	ReturnOKDirectly:        {201, "return ok directly"},
 	InvalidTimestamp:        {401, "invalid timestamp"},
 	Forbidden:               {403, "forbidden"},
 	HandlerNotFound:         {404, "request handler not found"},
@@ -137,8 +139,8 @@ func (response *Response) Print() string {
 	return string(bytes)
 }
 
-func Return(codeType CodeType) *Response {
-	return &Response{Code: codeType.Code, Success: false, Err: codeType.Msg}
+func Return(codeType CodeType, success bool) *Response {
+	return &Response{Code: codeType.Code, Success: success, Err: codeType.Msg}
 }
 
 func ReturnFail(codeType CodeType, err string) *Response {
