@@ -265,7 +265,9 @@ func (ecm *ExpCommandModel) Example() string {
 func (ecm *ExpCommandModel) Actions() []ExpActionCommandSpec {
 	specs := make([]ExpActionCommandSpec, 0)
 	for idx := range ecm.ExpActions {
-		ecm.ExpActions[idx].executor = ecm.ExpExecutor
+		if ecm.ExpExecutor != nil {
+			ecm.ExpActions[idx].executor = ecm.ExpExecutor
+		}
 		specs = append(specs, &ecm.ExpActions[idx])
 	}
 	return specs
@@ -280,7 +282,11 @@ func (ecm *ExpCommandModel) Flags() []ExpFlagSpec {
 }
 
 func (ecm *ExpCommandModel) SetFlags(flags []ExpFlagSpec) {
-	// do nothing
+	expFlags := ecm.ExpFlags
+	for idx := range flags {
+		expFlags = append(expFlags, *flags[idx].(*ExpFlag))
+	}
+	ecm.ExpFlags = expFlags
 }
 
 type Models struct {
