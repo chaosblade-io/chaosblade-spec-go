@@ -199,7 +199,7 @@ func (l *LocalChannel) GetPidsByLocalPort(localPort string) ([]string, error) {
 	//$ss -lpn 'sport = :80'
 	//Netid State      Recv-Q Send-Q   Local Address:Port   Peer Address:Port
 	//tcp   LISTEN     0      128       *:80                 *:* users:(("tengine",pid=237768,fd=6),("tengine",pid=237767,fd=6))
-	response := l.Run(context.TODO(), "ss", fmt.Sprintf("-pn sport = %s", localPort))
+	response := l.Run(context.TODO(), "ss", fmt.Sprintf("-pln sport = %s", localPort))
 	if !response.Success {
 		return []string{}, fmt.Errorf(response.Err)
 	}
