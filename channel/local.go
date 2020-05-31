@@ -192,42 +192,76 @@ func (l *LocalChannel) GetPidsByLocalPorts(localPorts []string) ([]string, error
 }
 
 func (l *LocalChannel) GetPidsByLocalPort(localPort string) ([]string, error) {
-	available := l.IsCommandAvailable("ss")
-	if !available {
-		return nil, fmt.Errorf("ss command not found, can't get pid by port")
-	}
-	//$ss -lpn 'sport = :80'
-	//Netid State      Recv-Q Send-Q   Local Address:Port   Peer Address:Port
-	//tcp   LISTEN     0      128       *:80                 *:* users:(("tengine",pid=237768,fd=6),("tengine",pid=237767,fd=6))
-	response := l.Run(context.TODO(), "ss", fmt.Sprintf("-pln sport = %s", localPort))
-	if !response.Success {
-		return []string{}, fmt.Errorf(response.Err)
-	}
-	if util.IsNil(response.Result) {
-		return []string{}, nil
-	}
-	result := response.Result.(string)
-	ssMsg := strings.TrimSpace(result)
-	if ssMsg == "" {
-		return []string{}, nil
-	}
-	sockets := strings.Split(ssMsg, "\n")
-	logrus.Infof("sockets for %s, %v", localPort, sockets)
-	for idx, s := range sockets {
-		if idx == 0 {
-			continue
-		}
-		fields := strings.Fields(s)
-		// users:(("tengine",pid=237768,fd=6),("tengine",pid=237767,fd=6))
-		lastField := fields[len(fields)-1]
-		pidExp := regexp.MustCompile(`pid=(\d+)`)
-		values := pidExp.FindStringSubmatch(lastField)
-		if values == nil {
-			return []string{}, nil
-		}
-		return values, nil
-	}
-	return []string{}, nil
+        available := l.IsCommandAvailable("ss")
+        if !available {
+                return nil, fmt.Errorf("ss command not found, can't get pid by port")
+        }
+
+        pids := []string{}
+
+        //on centos7, ss outupt pid with 'pid='
+        //$ss -lpn 'sport = :80'
+        //Netid State      Recv-Q Send-Q   Local Address:Port   Peer Address:Port
+        //tcp   LISTEN     0      128       *:80                 *:* users:(("tengine",pid=237768,fd=6),("tengine",pid=237767,fd=6))
+
+        //on centos6, ss output pid without 'pid='
+        //$ss -lpn 'sport = :80'
+        //Netid State      Recv-Q Send-Q   Local Address:Port   Peer Address:Port
+        //tcp   LISTEN     0      128       *:80                 *:* users:(("tengine",237768,fd=6),("tengine",237767,fd=6))
+        response := l.Run(context.TODO(), "ss", fmt.Sprintf("-pln sport = :%s", localPort))
+        if !response.Success {
+                return pids, fmt.Errorf(response.Err)
+        }
+        if util.IsNil(response.Result) {
+                return pids, nil
+        }
+        result := response.Result.(string)
+        ssMsg := strings.TrimSpace(result)
+        if ssMsg == "" {
+                return pids, nil
+        }
+        sockets := strings.Split(ssMsg, "\n")
+        logrus.Infof("sockets for %s, %v", localPort, sockets)
+        for idx, s := range sockets {
+                if idx == 0 {
+                        continue
+                }
+                fields := strings.Fields(s)
+                // centos7: users:(("tengine",pid=237768,fd=6),("tengine",pid=237767,fd=6))
+                // centos6: users:(("tengine",237768,fd=6),("tengine",237767,fd=6))
+                lastField := fields[len(fields)-1]
+                logrus.Infof("GetPidsByLocalPort: lastField: %v", lastField)
+                pidExp := regexp.MustCompile(`pid=(\d+)|,(\d+),`)
+                // extract all the pids that conforms to pidExp
+                matchedPidArrays := pidExp.FindAllStringSubmatch(lastField, -1)
+                if matchedPidArrays == nil || len(matchedPidArrays) == 0 {
+                        return pids, nil
+                }
+
+                for _, matchedPidArray := range matchedPidArrays {
+
+                        var pid string
+
+                        // centos7: matchedPidArray is [pid=29863 29863 ], matchedPidArray[len(matchedPidArray)-1] is whitespace
+
+                        pid = strings.TrimSpace(matchedPidArray[len(matchedPidArray)-1])
+
+                        if pid != "" {
+                                pids = append(pids, pid)
+                                continue
+                        }
+
+                        // centos6: matchedPidArray is [,237768,  237768] matchedPidArray[len(matchedPidArray)-1] is pid
+                        pid = strings.TrimSpace(matchedPidArray[len(matchedPidArray)-2])
+                        if pid != "" {
+                                pids = append(pids, pid)
+                                continue
+                        }
+
+                }
+        }
+        logrus.Infof("GetPidsByLocalPort: pids: %v", pids)
+        return pids, nil
 }
 
 // execScript invokes exec.CommandContext
