@@ -27,6 +27,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/shirou/gopsutil/process"
 	"github.com/sirupsen/logrus"
 
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
@@ -50,76 +51,114 @@ func (l *LocalChannel) GetScriptPath() string {
 }
 
 func (l *LocalChannel) GetPidsByProcessCmdName(processName string, ctx context.Context) ([]string, error) {
-	excludeProcesses := ctx.Value(ExcludeProcessKey)
-	excludeGrepInfo := ""
-	if excludeProcesses != nil {
-		excludeProcessesString := excludeProcesses.(string)
-		excludeProcessArrays := strings.Split(excludeProcessesString, ",")
-		for _, excludeProcess := range excludeProcessArrays {
-			if excludeProcess != "" {
-				excludeGrepInfo += fmt.Sprintf(`| grep -v -w %s`, excludeProcess)
+	processName = strings.TrimSpace(processName)
+	if processName == "" {
+		return []string{}, fmt.Errorf("processName is blank")
+	}
+	processes, err := process.Processes()
+	if err != nil {
+		return []string{}, err
+	}
+	excludeProcesses := getExcludeProcesses(ctx)
+	pids := make([]string, 0)
+	for _, p := range processes {
+		name, err := p.Name()
+		if err != nil {
+			logrus.WithField("pid", p.Pid).WithError(err).Debugln("get process name error")
+			continue
+		}
+		if processName != name {
+			continue
+		}
+		if int32(os.Getpid()) == p.Pid {
+			continue
+		}
+		cmdline, _ := p.Cmdline()
+		containsExcludeProcess := false
+		logrus.WithFields(logrus.Fields{
+			"name":        name,
+			"cmdline":     cmdline,
+			"processName": processName,
+		}).Debugln("process info")
+		for _, ep := range excludeProcesses {
+			if strings.Contains(cmdline, strings.TrimSpace(ep)) {
+				containsExcludeProcess = true
+				break
 			}
 		}
-	}
-	response := l.Run(ctx, "pgrep",
-		fmt.Sprintf(`-l %s %s | grep -v -w chaos_killprocess | grep -v -w chaos_stopprocess | awk '{print $1}' | tr '\n' ' '`,
-			processName, excludeGrepInfo))
-	if !response.Success {
-		return nil, fmt.Errorf(response.Err)
-	}
-	pidString := response.Result.(string)
-	pids := strings.Fields(strings.TrimSpace(pidString))
-	currPid := strconv.Itoa(os.Getpid())
-	for idx, pid := range pids {
-		if pid == currPid {
-			return util.Remove(pids, idx), nil
+		if containsExcludeProcess {
+			continue
 		}
+		pids = append(pids, fmt.Sprintf("%d", p.Pid))
 	}
 	return pids, nil
 }
 
 func (l *LocalChannel) GetPidsByProcessName(processName string, ctx context.Context) ([]string, error) {
-	psArgs := l.GetPsArgs()
-	otherProcess := ctx.Value(ProcessKey)
-	otherGrepInfo := ""
-	if otherProcess != nil {
-		processString := otherProcess.(string)
-		if processString != "" {
-			otherGrepInfo = fmt.Sprintf(`| grep "%s"`, processString)
-		}
+	processName = strings.TrimSpace(processName)
+	if processName == "" {
+		return []string{}, fmt.Errorf("process keyword is blank")
 	}
-	excludeProcesses := ctx.Value(ExcludeProcessKey)
-	excludeGrepInfo := ""
-	if excludeProcesses != nil {
-		excludeProcessesString := excludeProcesses.(string)
-		excludeProcessArrays := strings.Split(excludeProcessesString, ",")
-		for _, excludeProcess := range excludeProcessArrays {
-			if excludeProcess != "" {
-				excludeGrepInfo += fmt.Sprintf(`| grep -v -w %s`, excludeProcess)
+	processes, err := process.Processes()
+	if err != nil {
+		return []string{}, err
+	}
+	otherConditionProcessValue := ctx.Value(ProcessKey)
+	otherConditionProcessName := ""
+	if otherConditionProcessValue != nil {
+		otherConditionProcessName = otherConditionProcessValue.(string)
+	}
+	excludeProcesses := getExcludeProcesses(ctx)
+	pids := make([]string, 0)
+	for _, p := range processes {
+		cmdline, err := p.Cmdline()
+		if err != nil {
+			logrus.WithField("pid", p.Pid).WithError(err).Debugln("get command line err")
+			continue
+		}
+		if !strings.Contains(cmdline, processName) {
+			continue
+		}
+		logrus.WithFields(logrus.Fields{
+			"cmdline":                   cmdline,
+			"processName":               processName,
+			"otherConditionProcessName": otherConditionProcessName,
+			"excludeProcesses":          excludeProcesses,
+		}).Debugln("process info")
+		if otherConditionProcessName != "" && !strings.Contains(cmdline, otherConditionProcessName) {
+			continue
+		}
+		containsExcludeProcess := false
+		for _, ep := range excludeProcesses {
+			if strings.Contains(cmdline, ep) {
+				containsExcludeProcess = true
+				break
 			}
 		}
-	}
-	if strings.HasPrefix(processName, "-") {
-		processName = fmt.Sprintf(`\%s`, processName)
-	}
-	response := l.Run(ctx, "ps",
-		fmt.Sprintf(`%s | grep "%s" %s %s | grep -v -w grep | grep -v -w chaos_killprocess | grep -v -w chaos_stopprocess | awk '{print $2}' | tr '\n' ' '`,
-			psArgs, processName, otherGrepInfo, excludeGrepInfo))
-	if !response.Success {
-		return nil, fmt.Errorf(response.Err)
-	}
-	pidString := strings.TrimSpace(response.Result.(string))
-	if pidString == "" {
-		return make([]string, 0), nil
-	}
-	pids := strings.Fields(pidString)
-	currPid := strconv.Itoa(os.Getpid())
-	for idx, pid := range pids {
-		if pid == currPid {
-			return util.Remove(pids, idx), nil
+		if containsExcludeProcess {
+			continue
 		}
+		pids = append(pids, fmt.Sprintf("%d", p.Pid))
 	}
 	return pids, nil
+}
+
+func getExcludeProcesses(ctx context.Context) []string {
+	excludeProcessValue := ctx.Value(ExcludeProcessKey)
+	excludeProcesses := make([]string, 0)
+	if excludeProcessValue != nil {
+		excludeProcessesString := excludeProcessValue.(string)
+		processNames := strings.Split(excludeProcessesString, ",")
+		for _, name := range processNames {
+			name = strings.TrimSpace(name)
+			if name == "" {
+				continue
+			}
+			excludeProcesses = append(excludeProcesses, name)
+		}
+	}
+	excludeProcesses = append(excludeProcesses, "chaos_killprocess", "chaos_stopprocess")
+	return excludeProcesses
 }
 
 func (l *LocalChannel) GetPsArgs() string {
@@ -147,36 +186,23 @@ func (l *LocalChannel) IsCommandAvailable(commandName string) bool {
 }
 
 func (l *LocalChannel) ProcessExists(pid string) (bool, error) {
-	if l.isAlpinePlatform() {
-		response := l.Run(context.TODO(), "ps", fmt.Sprintf("-o pid | grep %s", pid))
-		if !response.Success {
-			return false, fmt.Errorf(response.Err)
-		}
-		if strings.TrimSpace(response.Result.(string)) == "" {
-			return false, nil
-		}
-		return true, nil
+	p, err := strconv.Atoi(pid)
+	if err != nil {
+		return false, err
 	}
-	response := l.Run(context.TODO(), "ps", fmt.Sprintf("-p %s", pid))
-	return response.Success, nil
+	return process.PidExists(int32(p))
 }
 
 func (l *LocalChannel) GetPidUser(pid string) (string, error) {
-	var response *spec.Response
-	if l.isAlpinePlatform() {
-		response = l.Run(context.TODO(), "ps", fmt.Sprintf("-o user,pid | grep %s", pid))
-
-	} else {
-		response = l.Run(context.TODO(), "ps", fmt.Sprintf("-o user,pid -p %s | grep %s", pid, pid))
+	p, err := strconv.Atoi(pid)
+	if err != nil {
+		return "", err
 	}
-	if !response.Success {
-		return "", fmt.Errorf(response.Err)
+	process, err := process.NewProcess(int32(p))
+	if err != nil {
+		return "", err
 	}
-	result := strings.TrimSpace(response.Result.(string))
-	if result == "" {
-		return "", fmt.Errorf("process user not found by pid")
-	}
-	return strings.Fields(result)[0], nil
+	return process.Username()
 }
 
 func (l *LocalChannel) GetPidsByLocalPorts(localPorts []string) ([]string, error) {
