@@ -59,6 +59,7 @@ func (l *LocalChannel) GetPidsByProcessCmdName(processName string, ctx context.C
 	if err != nil {
 		return []string{}, err
 	}
+	currPid := os.Getpid()
 	excludeProcesses := getExcludeProcesses(ctx)
 	pids := make([]string, 0)
 	for _, p := range processes {
@@ -89,6 +90,9 @@ func (l *LocalChannel) GetPidsByProcessCmdName(processName string, ctx context.C
 		if containsExcludeProcess {
 			continue
 		}
+		if p.Pid == int32(currPid) {
+			continue
+		}
 		pids = append(pids, fmt.Sprintf("%d", p.Pid))
 	}
 	return pids, nil
@@ -108,6 +112,7 @@ func (l *LocalChannel) GetPidsByProcessName(processName string, ctx context.Cont
 	if otherConditionProcessValue != nil {
 		otherConditionProcessName = otherConditionProcessValue.(string)
 	}
+	currPid := os.Getpid()
 	excludeProcesses := getExcludeProcesses(ctx)
 	pids := make([]string, 0)
 	for _, p := range processes {
@@ -136,6 +141,9 @@ func (l *LocalChannel) GetPidsByProcessName(processName string, ctx context.Cont
 			}
 		}
 		if containsExcludeProcess {
+			continue
+		}
+		if p.Pid == int32(currPid) {
 			continue
 		}
 		pids = append(pids, fmt.Sprintf("%d", p.Pid))
