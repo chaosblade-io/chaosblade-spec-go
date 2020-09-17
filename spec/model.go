@@ -314,7 +314,7 @@ func ConvertExpMatchersToString(expModel *ExpModel, createExcludeKeyFunc func() 
 			if strings.Contains(value, " ") {
 				value = strings.ReplaceAll(value, " ", "@@##")
 			}
-			matchers = fmt.Sprintf(`%s --%s='%s'`, matchers, name, value)
+			matchers = fmt.Sprintf(`%s --%s=%s`, matchers, name, value)
 		}
 	}
 	return matchers
