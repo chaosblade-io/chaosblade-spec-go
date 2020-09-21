@@ -35,9 +35,6 @@ type ExpModelCommandSpec interface {
 	// LongDesc returns full description for the command
 	LongDesc() string
 
-	// Example returns use case for the command
-	Example() string
-
 	// Actions returns the list of actions supported by the command
 	Actions() []ExpActionCommandSpec
 
@@ -62,11 +59,20 @@ type ExpActionCommandSpec interface {
 	// LongDesc returns full description for the action
 	LongDesc() string
 
+	// SetLongDesc
+	SetLongDesc(longDesc string)
+
 	// Matchers returns the list of matchers supported by the action
 	Matchers() []ExpFlagSpec
 
 	// Flags returns the list of flags supported by the action
 	Flags() []ExpFlagSpec
+
+	//Example returns command example
+	Example() string
+
+	//Example returns command example
+	SetExample(example string)
 
 	// ExpExecutor returns the action command ExpExecutor
 	Executor() Executor
@@ -154,6 +160,8 @@ type BaseExpActionCommandSpec struct {
 	ActionMatchers []ExpFlagSpec
 	ActionFlags    []ExpFlagSpec
 	ActionExecutor Executor
+	ActionLongDesc string
+	ActionExample  string
 }
 
 func (b *BaseExpActionCommandSpec) Matchers() []ExpFlagSpec {
@@ -172,6 +180,18 @@ func (b *BaseExpActionCommandSpec) SetExecutor(executor Executor) {
 	b.ActionExecutor = executor
 }
 
+func (b *BaseExpActionCommandSpec) SetLongDesc(longDesc string) {
+	b.ActionLongDesc = longDesc
+}
+
+func (b *BaseExpActionCommandSpec) SetExample(example string) {
+	b.ActionExample = example
+}
+
+func (b *BaseExpActionCommandSpec) Example() string {
+	return b.ActionExample
+}
+
 // ActionModel for yaml file
 type ActionModel struct {
 	ActionName      string    `yaml:"action"`
@@ -180,7 +200,16 @@ type ActionModel struct {
 	ActionLongDesc  string    `yaml:"longDesc"`
 	ActionMatchers  []ExpFlag `yaml:"matchers,omitempty"`
 	ActionFlags     []ExpFlag `yaml:"flags,omitempty"`
+	ActionExample   string    `yaml:"example"`
 	executor        Executor
+}
+
+func (am *ActionModel) SetExample(example string) {
+	am.ActionExample = example
+}
+
+func (am *ActionModel) Example() string {
+	return am.ActionExample
 }
 
 func (am *ActionModel) SetExecutor(executor Executor) {
@@ -201,6 +230,10 @@ func (am *ActionModel) Aliases() []string {
 
 func (am *ActionModel) ShortDesc() string {
 	return am.ActionShortDesc
+}
+
+func (am *ActionModel) SetLongDesc(longDesc string) {
+	am.ActionLongDesc = longDesc
 }
 
 func (am *ActionModel) LongDesc() string {
@@ -233,7 +266,6 @@ type ExpCommandModel struct {
 	ExpName         string          `yaml:"target"`
 	ExpShortDesc    string          `yaml:"shortDesc"`
 	ExpLongDesc     string          `yaml:"longDesc"`
-	ExpExample      string          `yaml:"example"`
 	ExpActions      []ActionModel   `yaml:"actions"`
 	ExpExecutor     Executor        `yaml:"-"`
 	ExpFlags        []ExpFlag       `yaml:"flags,omitempty"`
@@ -256,10 +288,6 @@ func (ecm *ExpCommandModel) ShortDesc() string {
 
 func (ecm *ExpCommandModel) LongDesc() string {
 	return ecm.ExpLongDesc
-}
-
-func (ecm *ExpCommandModel) Example() string {
-	return ecm.ExpExample
 }
 
 func (ecm *ExpCommandModel) Actions() []ExpActionCommandSpec {
