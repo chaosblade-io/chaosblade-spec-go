@@ -75,7 +75,6 @@ func ConvertSpecToModels(commandSpec spec.ExpModelCommandSpec, prepare spec.ExpP
 		ExpName:         commandSpec.Name(),
 		ExpShortDesc:    commandSpec.ShortDesc(),
 		ExpLongDesc:     commandSpec.LongDesc(),
-		ExpExample:      commandSpec.Example(),
 		ExpActions:      make([]spec.ActionModel, 0),
 		ExpSubTargets:   make([]string, 0),
 		ExpPrepareModel: prepare,
@@ -87,6 +86,7 @@ func ConvertSpecToModels(commandSpec spec.ExpModelCommandSpec, prepare spec.ExpP
 			ActionAliases:   action.Aliases(),
 			ActionShortDesc: action.ShortDesc(),
 			ActionLongDesc:  action.LongDesc(),
+			ActionExample:   action.Example(),
 			ActionMatchers: func() []spec.ExpFlag {
 				matchers := make([]spec.ExpFlag, 0)
 				for _, m := range action.Matchers() {
