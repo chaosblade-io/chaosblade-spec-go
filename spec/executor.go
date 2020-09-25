@@ -39,6 +39,9 @@ type ExpModel struct {
 
 	// ActionFlags is the experiment action flags, for example time and offset
 	ActionFlags map[string]string
+
+	// Programs
+	ActionPrograms []string
 }
 
 // ExpExecutor defines the ExpExecutor interface

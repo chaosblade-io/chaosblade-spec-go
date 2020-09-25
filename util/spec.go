@@ -130,6 +130,7 @@ func ConvertSpecToModels(commandSpec spec.ExpModelCommandSpec, prepare spec.ExpP
 				)
 				return flags
 			}(),
+			ActionPrograms: action.Programs(),
 		}
 		model.ExpActions = append(model.ExpActions, actionModel)
 	}

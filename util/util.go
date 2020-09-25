@@ -40,6 +40,7 @@ import (
 var proPath string
 var binPath string
 var libPath string
+var yamlPath string
 
 // GetProgramPath
 func GetProgramPath() string {
@@ -76,6 +77,14 @@ func GetLibHome() string {
 	}
 	libPath = path.Join(GetProgramPath(), "lib")
 	return libPath
+}
+
+func GetYamlHome() string {
+	if yamlPath != "" {
+		return yamlPath
+	}
+	yamlPath = path.Join(GetProgramPath(), "yaml")
+	return yamlPath
 }
 
 // GenerateUid for exp

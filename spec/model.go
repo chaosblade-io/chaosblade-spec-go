@@ -79,6 +79,9 @@ type ExpActionCommandSpec interface {
 
 	// SetExecutor
 	SetExecutor(executor Executor)
+
+	// Programs executed
+	Programs() []string
 }
 
 type ExpFlagSpec interface {
@@ -162,6 +165,7 @@ type BaseExpActionCommandSpec struct {
 	ActionExecutor Executor
 	ActionLongDesc string
 	ActionExample  string
+	ActionPrograms []string
 }
 
 func (b *BaseExpActionCommandSpec) Matchers() []ExpFlagSpec {
@@ -192,6 +196,10 @@ func (b *BaseExpActionCommandSpec) Example() string {
 	return b.ActionExample
 }
 
+func (b *BaseExpActionCommandSpec) Programs() []string {
+	return b.ActionPrograms
+}
+
 // ActionModel for yaml file
 type ActionModel struct {
 	ActionName      string    `yaml:"action"`
@@ -202,6 +210,11 @@ type ActionModel struct {
 	ActionFlags     []ExpFlag `yaml:"flags,omitempty"`
 	ActionExample   string    `yaml:"example"`
 	executor        Executor
+	ActionPrograms  []string `yaml:"programs"`
+}
+
+func (am *ActionModel) Programs() []string {
+	return am.ActionPrograms
 }
 
 func (am *ActionModel) SetExample(example string) {
