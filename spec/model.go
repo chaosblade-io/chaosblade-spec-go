@@ -95,6 +95,8 @@ type ExpFlagSpec interface {
 	FlagRequired() bool
 	// FlagRequiredWhenDestroyed returns true if the flag is necessary when destroying experiment
 	FlagRequiredWhenDestroyed() bool
+	// 	FlagDefault return the flag Defaule
+	FlagDefault() string
 }
 
 // ExpFlag defines the action flag
@@ -112,6 +114,9 @@ type ExpFlag struct {
 	Required bool `yaml:"required"`
 	// RequiredWhenDestroyed is true if the flag is necessary when destroying experiment
 	RequiredWhenDestroyed bool `yaml:"requiredWhenDestroyed"`
+
+	// default value
+	Default string `yaml:"default,omitempty"`
 }
 
 func (f *ExpFlag) FlagName() string {
@@ -132,6 +137,10 @@ func (f *ExpFlag) FlagRequired() bool {
 
 func (f *ExpFlag) FlagRequiredWhenDestroyed() bool {
 	return f.RequiredWhenDestroyed
+}
+
+func (f *ExpFlag) FlagDefault() string {
+	return f.Default
 }
 
 // BaseExpModelCommandSpec defines the common struct of the implementation of ExpModelCommandSpec
