@@ -29,19 +29,19 @@ const (
 // ExpModel is the experiment data object
 type ExpModel struct {
 	// Target is experiment target
-	Target string
+	Target string `json:"target,omitempty"`
 
 	// Scope is the experiment scope
-	Scope string
+	Scope string `json:"scope,omitempty"`
 
 	// ActionName is the experiment action FlagName, for example delay
-	ActionName string
+	ActionName string `json:"action,omitempty"`
 
 	// ActionFlags is the experiment action flags, for example time and offset
-	ActionFlags map[string]string
+	ActionFlags map[string]string `json:"flags,omitempty"`
 
 	// Programs
-	ActionPrograms []string
+	ActionPrograms []string `json:"programs,omitempty"`
 }
 
 // ExpExecutor defines the ExpExecutor interface
