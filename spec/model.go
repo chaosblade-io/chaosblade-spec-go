@@ -323,7 +323,7 @@ func (ecm *ExpCommandModel) Flags() []ExpFlagSpec {
 }
 
 func (ecm *ExpCommandModel) SetFlags(flags []ExpFlagSpec) {
-	expFlags := ecm.ExpFlags
+	expFlags := make([]ExpFlag, 0)
 	for idx := range flags {
 		expFlags = append(expFlags, *flags[idx].(*ExpFlag))
 	}
