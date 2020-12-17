@@ -68,6 +68,9 @@ func (mlc *MockLocalChannel) GetPsArgs() string {
 func (mlc *MockLocalChannel) isAlpinePlatform() bool {
 	return false
 }
+func (mlc *MockLocalChannel) IsAllCommandsAvailable(commandNames []string) (*spec.Response, bool) {
+	return nil, false
+}
 
 func (mlc *MockLocalChannel) IsCommandAvailable(commandName string) bool {
 	return mlc.IsCommandAvailableFunc(commandName)
