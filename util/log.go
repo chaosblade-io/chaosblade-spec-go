@@ -21,7 +21,6 @@ import (
 	"io"
 	"os"
 	"path"
-	"time"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -64,12 +63,60 @@ func InitLog(programType int) {
 
 	formatter := &logrus.TextFormatter{
 		FullTimestamp:   true,
-		TimestampFormat: time.RFC3339Nano,
+		TimestampFormat: "2006-01-02 15:04:05.999999999 MST",
+		DisableColors:   true,
 	}
 	logrus.SetFormatter(formatter)
 
 	if Debug {
 		logrus.SetLevel(logrus.DebugLevel)
+	}
+}
+
+func Panicf(uid, funcName, msg string) {
+	logger(uid, funcName, msg, logrus.PanicLevel)
+}
+func Fatalf(uid, funcName, msg string) {
+	logger(uid, funcName, msg, logrus.FatalLevel)
+}
+func Errorf(uid, funcName, msg string) {
+	logger(uid, funcName, msg, logrus.ErrorLevel)
+}
+func Warnf(uid, funcName, msg string) {
+	logger(uid, funcName, msg, logrus.WarnLevel)
+}
+func Infof(uid, funcName, msg string) {
+	logger(uid, funcName, msg, logrus.InfoLevel)
+}
+func Debugf(uid, funcName, msg string) {
+	logger(uid, funcName, msg, logrus.DebugLevel)
+}
+func Tracef(uid, funcName, msg string) {
+	logger(uid, funcName, msg, logrus.TraceLevel)
+}
+
+func logger(uid, funcName, msg string, level logrus.Level) {
+	entry := logrus.WithFields(logrus.Fields{
+		"uid":      uid,
+		"location": funcName,
+	})
+	switch level {
+	case logrus.PanicLevel:
+		entry.Panicf(msg)
+	case logrus.FatalLevel:
+		entry.Fatalf(msg)
+	case logrus.ErrorLevel:
+		entry.Errorf(msg)
+	case logrus.WarnLevel:
+		entry.Warnf(msg)
+	case logrus.InfoLevel:
+		entry.Info(msg)
+	case logrus.DebugLevel:
+		entry.Debugf(msg)
+	case logrus.TraceLevel:
+		entry.Tracef(msg)
+	default:
+		Errorf(uid, funcName, msg)
 	}
 }
 
