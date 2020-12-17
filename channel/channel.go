@@ -23,7 +23,6 @@ import (
 )
 
 type OsChannel interface {
-
 	spec.Channel
 
 	// GetPidsByProcessCmdName returns the matched process other than the current process by the program command
@@ -38,6 +37,9 @@ type OsChannel interface {
 	// isAlpinePlatform returns true if the os version is alpine.
 	// If the /etc/os-release file doesn't exist, the function returns false.
 	isAlpinePlatform() bool
+
+	// IsAllCommandsAvailable returns nil,true if all commands exist
+	IsAllCommandsAvailable(commandNames []string) (*spec.Response, bool)
 
 	// IsCommandAvailable returns true if the command exists
 	IsCommandAvailable(commandName string) bool
