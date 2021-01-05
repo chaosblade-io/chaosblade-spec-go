@@ -244,8 +244,8 @@ func (l *LocalChannel) IsAllCommandsAvailable(commandNames []string) (*spec.Resp
 			return spec.ResponseFailWaitResult(spec.CommandIptablesNotFound, spec.ResponseErr[spec.CommandIptablesNotFound].Err,
 				spec.ResponseErr[spec.CommandIptablesNotFound].ErrInfo), false
 		case "sed":
-			return spec.ResponseFailWaitResult(spec.CommandSetNotFound, spec.ResponseErr[spec.CommandSetNotFound].Err,
-				spec.ResponseErr[spec.CommandSetNotFound].ErrInfo), false
+			return spec.ResponseFailWaitResult(spec.CommandSedNotFound, spec.ResponseErr[spec.CommandSedNotFound].Err,
+				spec.ResponseErr[spec.CommandSedNotFound].ErrInfo), false
 		case "awk":
 			return spec.ResponseFailWaitResult(spec.CommandAwkNotFound, spec.ResponseErr[spec.CommandAwkNotFound].Err,
 				spec.ResponseErr[spec.CommandAwkNotFound].ErrInfo), false
