@@ -219,7 +219,7 @@ type ActionModel struct {
 	ActionFlags     []ExpFlag `yaml:"flags,omitempty"`
 	ActionExample   string    `yaml:"example"`
 	executor        Executor
-	ActionPrograms  []string `yaml:"programs"`
+	ActionPrograms  []string `yaml:"programs,omitempty"`
 }
 
 func (am *ActionModel) Programs() []string {
@@ -332,7 +332,7 @@ func (ecm *ExpCommandModel) Flags() []ExpFlagSpec {
 }
 
 func (ecm *ExpCommandModel) SetFlags(flags []ExpFlagSpec) {
-	expFlags := ecm.ExpFlags
+	expFlags := make([]ExpFlag, 0)
 	for idx := range flags {
 		expFlags = append(expFlags, *flags[idx].(*ExpFlag))
 	}
