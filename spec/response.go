@@ -126,9 +126,6 @@ type ResultType struct {
 }
 
 const (
-	// 1. success
-	Success = 20000
-
 	// 2. failed
 	// 2.1 client error
 	//Uninitialized          = 41000
@@ -179,7 +176,6 @@ const (
 	ProcessIdByNameFailed    = 63010
 	ProcessJudgeExistFailed  = 63011
 	ProcessNotExist          = 63012
-	ProcessExistTooMany      = 63013
 	ProcessGetUsernameFailed = 63014
 	ChannelNil               = 63020
 	SandboxGetPortFailed     = 63030
@@ -202,7 +198,6 @@ const (
 )
 
 var ResponseErr = map[int32]ResultType{
-	Success: {"success", "success"},
 	//Uninitialized:       {"Uninitialized: access token not found", "Uninitialized: access token not found"},
 	Forbidden:                      {"Forbidden: must be root", "Forbidden: must be root"},
 	ActionNotSupport:               {"`%s`: action not supported", "`%s`: action not supported"},
@@ -210,7 +205,7 @@ var ResponseErr = map[int32]ResultType{
 	ParameterIllegal:               {"illegal parameter: `%s`", "illegal parameter: `%s`"},
 	ParameterInvalid:               {"invalid parameter: `%s`", "invalid parameter: `%s`"},
 	ParameterInvalidProName:        {"invalid parameter `%s`, `%s` process not found", "invalid parameter `%s`, `%s` process not found"},
-	ParameterInvalidProIdNotByName: {"invalid parameter `process|pid`, the process ids got by %s does not contain the pid %s value", "invalid parameter `process|pid`, the process ids got by %s does not contain the pid %s value"},
+	ParameterInvalidProIdNotByName: {"invalid parameter `process|pid`, the process ids got by `%s` does not contain the pid `%s` value", "invalid parameter `process|pid`, the process ids got by %s does not contain the pid %s value"},
 	ParameterInvalidCplusPort:      {"invalid parameter `port`, `%s` port not found, please execute prepare command firstly", "invalid parameter port, `%s` port not found, please execute prepare command firstly"},
 	ParameterInvalidDbQuery:        {"invalid parameter `%s`, db record not found", "invalid parameter `%s`, db record not found"},
 	ParameterInvalidCplusTarget:    {"invalid parameter `target`, `%s` target not support", "invalid parameter target, `%s` target not support"},
@@ -242,14 +237,13 @@ var ResponseErr = map[int32]ResultType{
 	DockerExecNotFound:      {"`%s`: the docker exec not found", "`%s`: the docker exec not found"},
 	HandlerExecNotFound:     {"`%s`: the handler exec not found", "`%s`: the handler exec not found"},
 	CplusActionNotSupport:   {"`%s`: cplus action not support", "`%s`: cplus action not support"},
+	ResultUnmarshalFailed:   {"exec result unmarshal failed", "`%s`: exec result unmarshal failed, err: %s"},
+	ResultMarshalFailed:     {"exec result marshal failed", "`%s`: exec result marshal failed, err: %s"},
+	ChaosbladeServiceStoped: {"chaosblade service has been stoped", "chaosblade service has been stoped"},
+	ProcessIdByNameFailed:   {"system error, uid: `%s`", "`%s`: get process id by name failed, err: %s"},
+	ProcessJudgeExistFailed: {"system error, uid: `%s`", "`%s`: judge the process exist or not, failed, err: %s"},
+	ProcessNotExist:         {"system error, uid: `%s`", "`%s`: the process not exist"},
 
-	ResultUnmarshalFailed:    {"exec result unmarshal failed", "`%s`: exec result unmarshal failed, err: %s"},
-	ResultMarshalFailed:      {"exec result marshal failed", "`%s`: exec result marshal failed, err: %s"},
-	ChaosbladeServiceStoped:  {"chaosblade service has been stoped", "chaosblade service has been stoped"},
-	ProcessIdByNameFailed:    {"system error, uid: `%s`", "`%s`: get process id by name failed"},
-	ProcessJudgeExistFailed:  {"system error, uid: `%s`", "`%s`: judge the process exist or not, failed"},
-	ProcessNotExist:          {"system error, uid: `%s`", "`%s`: the process not exist"},
-	ProcessExistTooMany:      {"system error, uid: `%s`", "`%s`: exist too many process id"},
 	ProcessGetUsernameFailed: {"system error, uid: `%s`", "`%s`: get username failed by the process id, err: %s"},
 	ChannelNil:               {"system error, uid: `%s`", "chanel is nil"},
 	SandboxGetPortFailed:     {"system error, uid: `%s`", "get sandbox port failed, err: %s"},
