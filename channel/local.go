@@ -385,16 +385,19 @@ func execScript(ctx context.Context, script, args string) *spec.Response {
 	logrus.Debugf("script: %s %s", script, args)
 	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", script+" "+args)
 	output, err := cmd.CombinedOutput()
-	if err != nil {
-		errMsg := string(output)
-		if !isBladeCmd {
-			errMsg = fmt.Sprintf("%s %s", errMsg, err.Error())
-		}
-		// todo 这里要该，而且这里在run之前，应该先判断这个二进制文件是否存在
-		return spec.ReturnFail(spec.Code[spec.ExecCommandError], errMsg)
+	outMsg := string(output)
+
+	if err == nil {
+		return spec.ReturnSuccess(outMsg)
 	}
-	result := string(output)
-	return spec.ReturnSuccess(result)
+
+	if strings.Contains(outMsg, "RTNETLINK answers: File exists") {
+		return spec.ResponseFail(spec.CommandNetworkExist, spec.ResponseErr[spec.CommandNetworkExist].ErrInfo)
+	}
+	if !isBladeCmd {
+		outMsg += " " + err.Error()
+	}
+	return spec.ResponseFail(spec.OsCmdExecFailed, fmt.Sprintf(spec.ResponseErr[spec.OsCmdExecFailed].ErrInfo, script+" "+args, outMsg))
 }
 
 func isBladeCommand(script string) bool {
