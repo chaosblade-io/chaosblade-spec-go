@@ -139,8 +139,10 @@ const (
 	ParameterInvalidProIdNotByName = 47003
 	ParameterInvalidDbQuery        = 47004
 	ParameterInvalidCplusTarget    = 47005
+	ParameterInvalidBladePathError = 47006
 	ParameterRequestFailed         = 48000
 	CommandLess                    = 49000
+	CommandNetworkExist            = 49001
 
 	// 2.2 server error, but the user can hold it
 	ChaosbladeFileNotFound  = 51000
@@ -209,41 +211,42 @@ var ResponseErr = map[int32]ResultType{
 	ParameterInvalidCplusPort:      {"invalid parameter `port`, `%s` port not found, please execute prepare command firstly", "invalid parameter port, `%s` port not found, please execute prepare command firstly"},
 	ParameterInvalidDbQuery:        {"invalid parameter `%s`, db record not found", "invalid parameter `%s`, db record not found"},
 	ParameterInvalidCplusTarget:    {"invalid parameter `target`, `%s` target not support", "invalid parameter target, `%s` target not support"},
+	ParameterInvalidBladePathError: {"invalid parameter `install-path`, chaosblade install into `%s` failed, err: %s", "invalid parameter `install-path`, chaosblade install into `%s` failed, err: %s"},
 	ParameterRequestFailed:         {"get request parameter failed", "get request parameter failed"},
 	CommandLess:                    {"less target command", "less target command"},
+	CommandNetworkExist:            {"network tc exec failed! RTNETLINK answers: File exists", "network tc exec failed! RTNETLINK answers: File exists"},
 
-	ChaosbladeFileNotFound:  {"`%s`: chaosblade file not found", "`%s`: chaosblade file not found"},
-	CommandTasksetNotFound:  {"`taskset`: command not found", "`taskset`: command not found"},
-	CommandMountNotFound:    {"`mount`: command not found", "`mount`: command not found"},
-	CommandUmountNotFound:   {"`umount`: command not found", "`umount`: command not found"},
-	CommandTcNotFound:       {"`tc`: command not found", "`tc`: command not found"},
-	CommandIptablesNotFound: {"`iptables`: command not found", "`iptables`: command not found"},
-	CommandSedNotFound:      {"`sed`: command not found", "`sed`: command not found"},
-	CommandCatNotFound:      {"`cat`: command not found", "`cat`: command not found"},
-	CommandSsNotFound:       {"`ss`: command not found", "`ss`: command not found"},
-	CommandDdNotFound:       {"`dd`: command not found", "`dd`: command not found"},
-	CommandRmNotFound:       {"`rm`: command not found", "`rm`: command not found"},
-	CommandTouchNotFound:    {"`touch`: command not found", "`touch`: command not found"},
-	CommandMkdirNotFound:    {"`mkdir`: command not found", "`mkdir`: command not found"},
-	CommandEchoNotFound:     {"`echo`: command not found", "`echo`: command not found"},
-	CommandKillNotFound:     {"`kill`: command not found", "`kill`: command not found"},
-	CommandMvNotFound:       {"`mv`: command not found", "`mv`: command not found"},
-	CommandHeadNotFound:     {"`head`: command not found", "`head`: command not found"},
-	CommandGrepNotFound:     {"`grep`: command not found", "`grep`: command not found"},
-	CommandAwkNotFound:      {"`awk`: command not found", "`awk`: command not found"},
-	CommandTarNotFound:      {"`tar`: command not found", "`tar`: command not found"},
-	ChaosbladeServerStarted: {"the chaosblade has been started", "the chaosblade has been started. If you want to stop it, you can execute blade server stop command"},
-	UnexpectedStatus:        {"unexpected status, expected status: `%s`, but the real status: `%s`, please wait!", "unexpected status, expected status: `%s`, but the real status: `%s`, please wait!"},
-	DockerExecNotFound:      {"`%s`: the docker exec not found", "`%s`: the docker exec not found"},
-	HandlerExecNotFound:     {"`%s`: the handler exec not found", "`%s`: the handler exec not found"},
-	CplusActionNotSupport:   {"`%s`: cplus action not support", "`%s`: cplus action not support"},
-	ResultUnmarshalFailed:   {"exec result unmarshal failed", "`%s`: exec result unmarshal failed, err: %s"},
-	ResultMarshalFailed:     {"exec result marshal failed", "`%s`: exec result marshal failed, err: %s"},
-	ChaosbladeServiceStoped: {"chaosblade service has been stoped", "chaosblade service has been stoped"},
-	ProcessIdByNameFailed:   {"system error, uid: `%s`", "`%s`: get process id by name failed, err: %s"},
-	ProcessJudgeExistFailed: {"system error, uid: `%s`", "`%s`: judge the process exist or not, failed, err: %s"},
-	ProcessNotExist:         {"system error, uid: `%s`", "`%s`: the process not exist"},
-
+	ChaosbladeFileNotFound:   {"`%s`: chaosblade file not found", "`%s`: chaosblade file not found"},
+	CommandTasksetNotFound:   {"`taskset`: command not found", "`taskset`: command not found"},
+	CommandMountNotFound:     {"`mount`: command not found", "`mount`: command not found"},
+	CommandUmountNotFound:    {"`umount`: command not found", "`umount`: command not found"},
+	CommandTcNotFound:        {"`tc`: command not found", "`tc`: command not found"},
+	CommandIptablesNotFound:  {"`iptables`: command not found", "`iptables`: command not found"},
+	CommandSedNotFound:       {"`sed`: command not found", "`sed`: command not found"},
+	CommandCatNotFound:       {"`cat`: command not found", "`cat`: command not found"},
+	CommandSsNotFound:        {"`ss`: command not found", "`ss`: command not found"},
+	CommandDdNotFound:        {"`dd`: command not found", "`dd`: command not found"},
+	CommandRmNotFound:        {"`rm`: command not found", "`rm`: command not found"},
+	CommandTouchNotFound:     {"`touch`: command not found", "`touch`: command not found"},
+	CommandMkdirNotFound:     {"`mkdir`: command not found", "`mkdir`: command not found"},
+	CommandEchoNotFound:      {"`echo`: command not found", "`echo`: command not found"},
+	CommandKillNotFound:      {"`kill`: command not found", "`kill`: command not found"},
+	CommandMvNotFound:        {"`mv`: command not found", "`mv`: command not found"},
+	CommandHeadNotFound:      {"`head`: command not found", "`head`: command not found"},
+	CommandGrepNotFound:      {"`grep`: command not found", "`grep`: command not found"},
+	CommandAwkNotFound:       {"`awk`: command not found", "`awk`: command not found"},
+	CommandTarNotFound:       {"`tar`: command not found", "`tar`: command not found"},
+	ChaosbladeServerStarted:  {"the chaosblade has been started", "the chaosblade has been started. If you want to stop it, you can execute blade server stop command"},
+	UnexpectedStatus:         {"unexpected status, expected status: `%s`, but the real status: `%s`, please wait!", "unexpected status, expected status: `%s`, but the real status: `%s`, please wait!"},
+	DockerExecNotFound:       {"`%s`: the docker exec not found", "`%s`: the docker exec not found"},
+	HandlerExecNotFound:      {"`%s`: the handler exec not found", "`%s`: the handler exec not found"},
+	CplusActionNotSupport:    {"`%s`: cplus action not support", "`%s`: cplus action not support"},
+	ResultUnmarshalFailed:    {"exec result unmarshal failed", "`%s`: exec result unmarshal failed, err: %s"},
+	ResultMarshalFailed:      {"exec result marshal failed", "`%s`: exec result marshal failed, err: %s"},
+	ChaosbladeServiceStoped:  {"chaosblade service has been stoped", "chaosblade service has been stoped"},
+	ProcessIdByNameFailed:    {"system error, uid: `%s`", "`%s`: get process id by name failed, err: %s"},
+	ProcessJudgeExistFailed:  {"system error, uid: `%s`", "`%s`: judge the process exist or not, failed, err: %s"},
+	ProcessNotExist:          {"system error, uid: `%s`", "`%s`: the process not exist"},
 	ProcessGetUsernameFailed: {"system error, uid: `%s`", "`%s`: get username failed by the process id, err: %s"},
 	ChannelNil:               {"system error, uid: `%s`", "chanel is nil"},
 	SandboxGetPortFailed:     {"system error, uid: `%s`", "get sandbox port failed, err: %s"},
@@ -307,6 +310,10 @@ func ReturnResultIgnoreCode(result interface{}) *Response {
 // new return func for unify errno
 func ResponseFailWaitResult(status int32, err string, result interface{}) *Response {
 	return &Response{Code: status, Success: false, Err: err, Result: result}
+}
+
+func ResponseFail(status int32, err string) *Response {
+	return &Response{Code: status, Success: false, Err: err}
 }
 
 //ToString
