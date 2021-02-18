@@ -85,6 +85,9 @@ type ExpActionCommandSpec interface {
 
 	// Scenario categories
 	Categories() []string
+
+	// SetCategories
+	SetCategories(categories []string)
 }
 
 type ExpFlagSpec interface {
@@ -208,6 +211,10 @@ func (b *BaseExpActionCommandSpec) Categories() []string {
 	return b.ActionCategories
 }
 
+func (b *BaseExpActionCommandSpec) SetCategories(categories []string) {
+	b.ActionCategories = categories
+}
+
 // ActionModel for yaml file
 type ActionModel struct {
 	ActionName       string    `yaml:"action"`
@@ -280,6 +287,10 @@ func (am *ActionModel) Flags() []ExpFlagSpec {
 
 func (am *ActionModel) Categories() []string {
 	return am.ActionCategories
+}
+
+func (am *ActionModel) SetCategories(categories []string) {
+	am.ActionCategories = categories
 }
 
 type ExpPrepareModel struct {
