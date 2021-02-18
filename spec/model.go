@@ -82,6 +82,9 @@ type ExpActionCommandSpec interface {
 
 	// Programs executed
 	Programs() []string
+
+	// Scenario categories
+	Categories() []string
 }
 
 type ExpFlagSpec interface {
@@ -160,12 +163,13 @@ func (b *BaseExpModelCommandSpec) SetFlags(flags []ExpFlagSpec) {
 
 // BaseExpActionCommandSpec defines the common struct of the implementation of ExpActionCommandSpec
 type BaseExpActionCommandSpec struct {
-	ActionMatchers []ExpFlagSpec
-	ActionFlags    []ExpFlagSpec
-	ActionExecutor Executor
-	ActionLongDesc string
-	ActionExample  string
-	ActionPrograms []string
+	ActionMatchers   []ExpFlagSpec
+	ActionFlags      []ExpFlagSpec
+	ActionExecutor   Executor
+	ActionLongDesc   string
+	ActionExample    string
+	ActionPrograms   []string
+	ActionCategories []string
 }
 
 func (b *BaseExpActionCommandSpec) Matchers() []ExpFlagSpec {
@@ -200,17 +204,22 @@ func (b *BaseExpActionCommandSpec) Programs() []string {
 	return b.ActionPrograms
 }
 
+func (b *BaseExpActionCommandSpec) Categories() []string {
+	return b.ActionCategories
+}
+
 // ActionModel for yaml file
 type ActionModel struct {
-	ActionName      string    `yaml:"action"`
-	ActionAliases   []string  `yaml:"aliases,flow,omitempty"`
-	ActionShortDesc string    `yaml:"shortDesc"`
-	ActionLongDesc  string    `yaml:"longDesc"`
-	ActionMatchers  []ExpFlag `yaml:"matchers,omitempty"`
-	ActionFlags     []ExpFlag `yaml:"flags,omitempty"`
-	ActionExample   string    `yaml:"example"`
-	executor        Executor
-	ActionPrograms  []string `yaml:"programs,omitempty"`
+	ActionName       string    `yaml:"action"`
+	ActionAliases    []string  `yaml:"aliases,flow,omitempty"`
+	ActionShortDesc  string    `yaml:"shortDesc"`
+	ActionLongDesc   string    `yaml:"longDesc"`
+	ActionMatchers   []ExpFlag `yaml:"matchers,omitempty"`
+	ActionFlags      []ExpFlag `yaml:"flags,omitempty"`
+	ActionExample    string    `yaml:"example"`
+	executor         Executor
+	ActionPrograms   []string `yaml:"programs,omitempty"`
+	ActionCategories []string `yaml:"categories,omitempty"`
 }
 
 func (am *ActionModel) Programs() []string {
@@ -267,6 +276,10 @@ func (am *ActionModel) Flags() []ExpFlagSpec {
 		flags = append(flags, &am.ActionFlags[idx])
 	}
 	return flags
+}
+
+func (am *ActionModel) Categories() []string {
+	return am.ActionCategories
 }
 
 type ExpPrepareModel struct {
