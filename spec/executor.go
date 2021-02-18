@@ -42,6 +42,9 @@ type ExpModel struct {
 
 	// Programs
 	ActionPrograms []string `json:"programs,omitempty"`
+
+	// Categories
+	ActionCategories []string `json:"categories,omitempty"`
 }
 
 // ExpExecutor defines the ExpExecutor interface
