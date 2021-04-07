@@ -197,8 +197,6 @@ const (
 	ChaosfsClientFailed      = 64000
 	ChaosfsInjectFailed      = 64001
 	ChaosfsRecoverFailed     = 64002
-	SshExecFailed            = 65000
-	SshExecNothing           = 65001
 )
 
 var ResponseErr = map[int32]ResultType{
@@ -267,8 +265,6 @@ var ResponseErr = map[int32]ResultType{
 	ChaosfsClientFailed:      {"init chaosfs client failed in pod %v, err: %v", "init chaosfs client failed in pod %v, err: %v"},
 	ChaosfsInjectFailed:      {"inject io exception in pod %s failed, request %v, err: %v", "inject io exception in pod %s failed, request %v, err: %v"},
 	ChaosfsRecoverFailed:     {"recover io exception failed in pod  %v, err: %v", "recover io exception failed in pod  %v, err: %v"},
-	SshExecFailed:            {"ssh exec failed, result: %v, err %v", "ssh exec failed, result: %v, err %v"},
-	SshExecNothing:           {"cannt get reuslt from remote host, please execute recovery and try again", "cannt get reuslt from remote host, please execute recovery and try again"},
 }
 
 type Response struct {
@@ -333,6 +329,8 @@ func Decode(content string, defaultValue *Response) *Response {
 			defaultValue = ResponseFailWaitResult(ResultUnmarshalFailed, ResponseErr[ResultUnmarshalFailed].Err,
 				fmt.Sprintf(ResponseErr[ResultUnmarshalFailed].ErrInfo, content, err.Error()))
 		}
+		//todo: less uid
+		//util.Warnf()
 		logrus.Warningf("decode %s err, return default value, %s", content, defaultValue.Print())
 		return defaultValue
 	}
