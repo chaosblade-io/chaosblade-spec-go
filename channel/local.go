@@ -188,75 +188,6 @@ func (l *LocalChannel) isAlpinePlatform() bool {
 	return strings.TrimSpace(osVer) == "alpine"
 }
 
-// check command is available or not
-// now, all commands are: ["rm", "dd" ,"touch", "mkdir",  "echo", "kill", ,"mv","mount", "umount","tc", "head"
-//"grep", "cat", "iptables", "sed", "awk", "tar"]
-func (l *LocalChannel) IsAllCommandsAvailable(commandNames []string) (*spec.Response, bool) {
-	if len(commandNames) == 0 {
-		return nil, true
-	}
-
-	for _, commandName := range commandNames {
-		if l.IsCommandAvailable(commandName) {
-			continue
-		}
-		switch commandName {
-		case "rm":
-			return spec.ResponseFailWaitResult(spec.CommandRmNotFound, spec.ResponseErr[spec.CommandRmNotFound].Err,
-				spec.ResponseErr[spec.CommandRmNotFound].ErrInfo), false
-		case "dd":
-			return spec.ResponseFailWaitResult(spec.CommandDdNotFound, spec.ResponseErr[spec.CommandDdNotFound].Err,
-				spec.ResponseErr[spec.CommandDdNotFound].ErrInfo), false
-		case "touch":
-			return spec.ResponseFailWaitResult(spec.CommandTouchNotFound, spec.ResponseErr[spec.CommandTouchNotFound].Err,
-				spec.ResponseErr[spec.CommandTouchNotFound].ErrInfo), false
-		case "mkdir":
-			return spec.ResponseFailWaitResult(spec.CommandMkdirNotFound, spec.ResponseErr[spec.CommandMkdirNotFound].Err,
-				spec.ResponseErr[spec.CommandMkdirNotFound].ErrInfo), false
-		case "echo":
-			return spec.ResponseFailWaitResult(spec.CommandEchoNotFound, spec.ResponseErr[spec.CommandEchoNotFound].Err,
-				spec.ResponseErr[spec.CommandEchoNotFound].ErrInfo), false
-		case "kill":
-			return spec.ResponseFailWaitResult(spec.CommandKillNotFound, spec.ResponseErr[spec.CommandKillNotFound].Err,
-				spec.ResponseErr[spec.CommandKillNotFound].ErrInfo), false
-		case "mv":
-			return spec.ResponseFailWaitResult(spec.CommandMvNotFound, spec.ResponseErr[spec.CommandMvNotFound].Err,
-				spec.ResponseErr[spec.CommandMvNotFound].ErrInfo), false
-		case "mount":
-			return spec.ResponseFailWaitResult(spec.CommandMountNotFound, spec.ResponseErr[spec.CommandMountNotFound].Err,
-				spec.ResponseErr[spec.CommandMountNotFound].ErrInfo), false
-		case "umount":
-			return spec.ResponseFailWaitResult(spec.CommandUmountNotFound, spec.ResponseErr[spec.CommandUmountNotFound].Err,
-				spec.ResponseErr[spec.CommandUmountNotFound].ErrInfo), false
-		case "tc":
-			return spec.ResponseFailWaitResult(spec.CommandTcNotFound, spec.ResponseErr[spec.CommandTcNotFound].Err,
-				spec.ResponseErr[spec.CommandTcNotFound].ErrInfo), false
-		case "head":
-			return spec.ResponseFailWaitResult(spec.CommandHeadNotFound, spec.ResponseErr[spec.CommandHeadNotFound].Err,
-				spec.ResponseErr[spec.CommandHeadNotFound].ErrInfo), false
-		case "grep":
-			return spec.ResponseFailWaitResult(spec.CommandGrepNotFound, spec.ResponseErr[spec.CommandGrepNotFound].Err,
-				spec.ResponseErr[spec.CommandGrepNotFound].ErrInfo), false
-		case "cat":
-			return spec.ResponseFailWaitResult(spec.CommandCatNotFound, spec.ResponseErr[spec.CommandCatNotFound].Err,
-				spec.ResponseErr[spec.CommandCatNotFound].ErrInfo), false
-		case "iptables":
-			return spec.ResponseFailWaitResult(spec.CommandIptablesNotFound, spec.ResponseErr[spec.CommandIptablesNotFound].Err,
-				spec.ResponseErr[spec.CommandIptablesNotFound].ErrInfo), false
-		case "sed":
-			return spec.ResponseFailWaitResult(spec.CommandSetNotFound, spec.ResponseErr[spec.CommandSetNotFound].Err,
-				spec.ResponseErr[spec.CommandSetNotFound].ErrInfo), false
-		case "awk":
-			return spec.ResponseFailWaitResult(spec.CommandAwkNotFound, spec.ResponseErr[spec.CommandAwkNotFound].Err,
-				spec.ResponseErr[spec.CommandAwkNotFound].ErrInfo), false
-		case "tar":
-			return spec.ResponseFailWaitResult(spec.CommandAwkNotFound, spec.ResponseErr[spec.CommandAwkNotFound].Err,
-				spec.ResponseErr[spec.CommandAwkNotFound].ErrInfo), false
-		}
-	}
-	return nil, true
-}
-
 func (l *LocalChannel) IsCommandAvailable(commandName string) bool {
 	response := l.Run(context.TODO(), "command", fmt.Sprintf("-v %s", commandName))
 	return response.Success
@@ -390,7 +321,6 @@ func execScript(ctx context.Context, script, args string) *spec.Response {
 		if !isBladeCmd {
 			errMsg = fmt.Sprintf("%s %s", errMsg, err.Error())
 		}
-		// todo 这里要该，而且这里在run之前，应该先判断这个二进制文件是否存在
 		return spec.ReturnFail(spec.Code[spec.ExecCommandError], errMsg)
 	}
 	result := string(output)

@@ -32,7 +32,6 @@ import (
 	"path"
 	"path/filepath"
 	"reflect"
-	"runtime"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -222,11 +221,4 @@ func GetUnusedPort() (int, error) {
 func GetProgramParentPath() string {
 	dir, _ := path.Split(GetProgramPath())
 	return dir
-}
-
-func GetRunFuncName() string {
-	pc := make([]uintptr, 1)
-	runtime.Callers(2, pc)
-	f := runtime.FuncForPC(pc[0])
-	return f.Name()
 }
