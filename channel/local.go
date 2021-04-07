@@ -383,10 +383,6 @@ func execScript(ctx context.Context, script, args string) *spec.Response {
 	isBladeCmd := isBladeCommand(script)
 	script = strings.Replace(script, " ", `\ `, -1)
 	logrus.Debugf("script: %s %s", script, args)
-	if resp := isBinBladeCommand(script); resp != nil {
-		return resp
-	}
-
 	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", script+" "+args)
 	output, err := cmd.CombinedOutput()
 	outMsg := string(output)
@@ -402,16 +398,6 @@ func execScript(ctx context.Context, script, args string) *spec.Response {
 		outMsg += " " + err.Error()
 	}
 	return spec.ResponseFail(spec.OsCmdExecFailed, fmt.Sprintf(spec.ResponseErr[spec.OsCmdExecFailed].ErrInfo, script+" "+args, outMsg))
-}
-func isBinBladeCommand(script string) *spec.Response {
-	if ok := strings.Contains(script, "/chaosblade"); !ok {
-		return nil
-	}
-
-	if ok := util.IsExist(script); !ok {
-		return spec.ResponseFail(spec.ChaosbladeFileNotFound, fmt.Sprintf(spec.ResponseErr[spec.ChaosbladeFileNotFound].Err, script))
-	}
-	return nil
 }
 
 func isBladeCommand(script string) bool {
