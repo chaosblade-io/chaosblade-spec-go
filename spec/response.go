@@ -132,18 +132,13 @@ const (
 	// 2. failed
 	// 2.1 client error
 	//Uninitialized          = 41000
-	Forbidden                      = 43000
-	ActionNotSupport               = 44000
-	ParameterLess                  = 45000
-	ParameterIllegal               = 46000
-	ParameterInvalid               = 47000
-	ParameterInvalidCplusPort      = 47001
-	ParameterInvalidProName        = 47002
-	ParameterInvalidProIdNotByName = 47003
-	ParameterInvalidDbQuery        = 47004
-	ParameterInvalidCplusTarget    = 47005
-	ParameterRequestFailed         = 48000
-	CommandLess                    = 49000
+	Forbidden              = 43000
+	ActionNotSupport       = 44000
+	ParameterLess          = 45000
+	ParameterIllegal       = 46000
+	ParameterInvalid       = 47000
+	ParameterRequestFailed = 48000
+	CommandLess            = 49000
 
 	// 2.2 server error, but the user can hold it
 	ChaosbladeFileNotFound  = 51000
@@ -152,7 +147,7 @@ const (
 	CommandUmountNotFound   = 52002
 	CommandTcNotFound       = 52003
 	CommandIptablesNotFound = 52004
-	CommandSedNotFound      = 52005
+	CommandSetNotFound      = 52005
 	CommandCatNotFound      = 52006
 	CommandSsNotFound       = 52007
 	CommandDdNotFound       = 52008
@@ -170,11 +165,9 @@ const (
 	UnexpectedStatus        = 54000
 	DockerExecNotFound      = 55000
 	HandlerExecNotFound     = 56000
-	CplusActionNotSupport   = 56001
 
 	// 2.3 server error, but the user can not hold it
 	ResultUnmarshalFailed    = 60000
-	ResultMarshalFailed      = 60001
 	ChaosbladeServiceStoped  = 61000
 	ProcessIdByNameFailed    = 63010
 	ProcessJudgeExistFailed  = 63011
@@ -193,27 +186,18 @@ const (
 	DockerExecFailed         = 63062
 	OsCmdExecFailed          = 63063
 	HttpExecFailed           = 63064
-	OsExecutorNotFound       = 63070
-	ChaosfsClientFailed      = 64000
-	ChaosfsInjectFailed      = 64001
-	ChaosfsRecoverFailed     = 64002
 )
 
 var ResponseErr = map[int32]ResultType{
 	Success: {"success", "success"},
 	//Uninitialized:       {"Uninitialized: access token not found", "Uninitialized: access token not found"},
-	Forbidden:                      {"Forbidden: must be root", "Forbidden: must be root"},
-	ActionNotSupport:               {"`%s`: action not supported", "`%s`: action not supported"},
-	ParameterLess:                  {"less parameter: `%s`", "less parameter: `%s`"},
-	ParameterIllegal:               {"illegal parameter: `%s`", "illegal parameter: `%s`"},
-	ParameterInvalid:               {"invalid parameter: `%s`", "invalid parameter: `%s`"},
-	ParameterInvalidProName:        {"invalid parameter `%s`, `%s` process not found", "invalid parameter `%s`, `%s` process not found"},
-	ParameterInvalidProIdNotByName: {"invalid parameter `process|pid`, the process ids got by %s does not contain the pid %s value", "invalid parameter `process|pid`, the process ids got by %s does not contain the pid %s value"},
-	ParameterInvalidCplusPort:      {"invalid parameter `port`, `%s` port not found, please execute prepare command firstly", "invalid parameter port, `%s` port not found, please execute prepare command firstly"},
-	ParameterInvalidDbQuery:        {"invalid parameter `%s`, db record not found", "invalid parameter `%s`, db record not found"},
-	ParameterInvalidCplusTarget:    {"invalid parameter `target`, `%s` target not support", "invalid parameter target, `%s` target not support"},
-	ParameterRequestFailed:         {"get request parameter failed", "get request parameter failed"},
-	CommandLess:                    {"less target command", "less target command"},
+	Forbidden:              {"Forbidden: must be root", "Forbidden: must be root"},
+	ActionNotSupport:       {"`%s`: action not supported", "`%s`: action not supported"},
+	ParameterLess:          {"less parameter: `%s`", "less parameter: `%s`"},
+	ParameterIllegal:       {"illegal parameter: `%s`", "illegal parameter: `%s`"},
+	ParameterInvalid:       {"invalid parameter: `%s`", "invalid parameter: `%s`"},
+	ParameterRequestFailed: {"get request parameter failed", "get request parameter failed"},
+	CommandLess:            {"less target command", "less target command"},
 
 	ChaosbladeFileNotFound:  {"`%s`: chaosblade file not found", "`%s`: chaosblade file not found"},
 	CommandTasksetNotFound:  {"`taskset`: command not found", "`taskset`: command not found"},
@@ -221,7 +205,7 @@ var ResponseErr = map[int32]ResultType{
 	CommandUmountNotFound:   {"`umount`: command not found", "`umount`: command not found"},
 	CommandTcNotFound:       {"`tc`: command not found", "`tc`: command not found"},
 	CommandIptablesNotFound: {"`iptables`: command not found", "`iptables`: command not found"},
-	CommandSedNotFound:      {"`sed`: command not found", "`sed`: command not found"},
+	CommandSetNotFound:      {"`set`: command not found", "`set`: command not found"},
 	CommandCatNotFound:      {"`cat`: command not found", "`cat`: command not found"},
 	CommandSsNotFound:       {"`ss`: command not found", "`ss`: command not found"},
 	CommandDdNotFound:       {"`dd`: command not found", "`dd`: command not found"},
@@ -239,10 +223,8 @@ var ResponseErr = map[int32]ResultType{
 	UnexpectedStatus:        {"unexpected status, expected status: `%s`, but the real status: `%s`, please wait!", "unexpected status, expected status: `%s`, but the real status: `%s`, please wait!"},
 	DockerExecNotFound:      {"`%s`: the docker exec not found", "`%s`: the docker exec not found"},
 	HandlerExecNotFound:     {"`%s`: the handler exec not found", "`%s`: the handler exec not found"},
-	CplusActionNotSupport:   {"`%s`: cplus action not support", "`%s`: cplus action not support"},
 
 	ResultUnmarshalFailed:    {"exec result unmarshal failed", "`%s`: exec result unmarshal failed, err: %s"},
-	ResultMarshalFailed:      {"exec result marshal failed", "`%s`: exec result marshal failed, err: %s"},
 	ChaosbladeServiceStoped:  {"chaosblade service has been stoped", "chaosblade service has been stoped"},
 	ProcessIdByNameFailed:    {"system error, uid: `%s`", "`%s`: get process id by name failed"},
 	ProcessJudgeExistFailed:  {"system error, uid: `%s`", "`%s`: judge the process exist or not, failed"},
@@ -261,10 +243,6 @@ var ResponseErr = map[int32]ResultType{
 	DockerExecFailed:         {"system error, uid: `%s`", "`%s`: docker exec failed, err: %s"},
 	OsCmdExecFailed:          {"system error, uid: `%s`", "`%s`: cmd exec failed, err: %s"},
 	HttpExecFailed:           {"system error, uid: `%s`", "`%s`: http cmd failed, err: %s"},
-	OsExecutorNotFound:       {"system error, uid: `%s`", "`%s`: os executor not found"},
-	ChaosfsClientFailed:      {"init chaosfs client failed in pod %v, err: %v", "init chaosfs client failed in pod %v, err: %v"},
-	ChaosfsInjectFailed:      {"inject io exception in pod %s failed, request %v, err: %v", "inject io exception in pod %s failed, request %v, err: %v"},
-	ChaosfsRecoverFailed:     {"recover io exception failed in pod  %v, err: %v", "recover io exception failed in pod  %v, err: %v"},
 }
 
 type Response struct {
