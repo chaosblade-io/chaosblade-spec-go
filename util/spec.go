@@ -127,6 +127,16 @@ func ConvertSpecToModels(commandSpec spec.ExpModelCommandSpec, prepare spec.ExpP
 						Required:              false,
 						RequiredWhenDestroyed: false,
 					},
+					spec.ExpFlag{
+						Name:     "async",
+						Desc:     "whether to create asynchronously, default is false",
+						Required: false,
+					},
+					spec.ExpFlag{
+						Name:     "endpoint",
+						Desc:     "the create result reporting address. It takes effect only when the async value is true and the value is not empty",
+						Required: false,
+					},
 				)
 				return flags
 			}(),
