@@ -47,7 +47,7 @@ func (l *LocalChannel) Run(ctx context.Context, script, args string) *spec.Respo
 }
 
 func (l *LocalChannel) GetScriptPath() string {
-	return util.GetBinPath()
+	return util.GetProgramPath()
 }
 
 func (l *LocalChannel) GetPidsByProcessCmdName(processName string, ctx context.Context) ([]string, error) {
