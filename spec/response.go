@@ -170,6 +170,7 @@ const (
 	CommandGrepNotFound     = 52016
 	CommandAwkNotFound      = 52017
 	CommandTarNotFound      = 52018
+	CommandSystemctlNotFound= 52019
 	ChaosbladeServerStarted = 53000
 	UnexpectedStatus        = 54000
 	DockerExecNotFound      = 55000
@@ -203,6 +204,7 @@ const (
 	ChaosfsRecoverFailed     = 64002
 	SshExecFailed            = 65000
 	SshExecNothing           = 65001
+	SystemdNotFound          = 66001
 )
 
 var ResponseErr = map[int32]ResultType{
@@ -246,6 +248,7 @@ var ResponseErr = map[int32]ResultType{
 	CommandGrepNotFound:     {"`grep`: command not found", "`grep`: command not found"},
 	CommandAwkNotFound:      {"`awk`: command not found", "`awk`: command not found"},
 	CommandTarNotFound:      {"`tar`: command not found", "`tar`: command not found"},
+	CommandSystemctlNotFound:{"`systemctl`: command not found", "`systemctl`: command not found"}
 	ChaosbladeServerStarted: {"the chaosblade has been started", "the chaosblade has been started. If you want to stop it, you can execute blade server stop command"},
 	UnexpectedStatus:        {"unexpected status, expected status: `%s`, but the real status: `%s`, please wait!", "unexpected status, expected status: `%s`, but the real status: `%s`, please wait!"},
 	DockerExecNotFound:      {"`%s`: the docker exec not found", "`%s`: the docker exec not found"},
@@ -278,6 +281,7 @@ var ResponseErr = map[int32]ResultType{
 	ChaosfsRecoverFailed:     {"recover io exception failed in pod  %v, err: %v", "recover io exception failed in pod  %v, err: %v"},
 	SshExecFailed:            {"ssh exec failed, result: %v, err %v", "ssh exec failed, result: %v, err %v"},
 	SshExecNothing:           {"cannt get reuslt from remote host, please execute recovery and try again", "cannt get reuslt from remote host, please execute recovery and try again"},
+	SystemdNotFound:          {"systemd not found : `%s`", "`%s`: systemd not found, err: %v"},
 }
 
 type Response struct {
