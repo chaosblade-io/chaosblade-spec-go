@@ -130,53 +130,54 @@ const (
 	// 2. failed
 	// 2.1 client error
 	//Uninitialized          = 41000
-	Forbidden                       = 43000
-	ActionNotSupport                = 44000
-	ParameterLess                   = 45000
-	ParameterIllegal                = 46000
-	ParameterInvalid                = 47000
-	ParameterInvalidCplusPort       = 47001
-	ParameterInvalidProName         = 47002
-	ParameterInvalidProIdNotByName  = 47003
-	ParameterInvalidDbQuery         = 47004
-	ParameterInvalidCplusTarget     = 47005
-	ParameterInvalidBladePathError  = 47006
-	ParameterInvalidNSNotOne        = 47007
-	ParameterInvalidK8sPodQuery     = 47008
-	ParameterInvalidK8sNodeQuery    = 47009
-	ParameterInvalidDockContainerId = 47010
-	ParameterRequestFailed          = 48000
-	CommandLess                     = 49000
-	CommandNetworkExist             = 49001
+	Forbidden                         = 43000
+	ActionNotSupport                  = 44000
+	ParameterLess                     = 45000
+	ParameterIllegal                  = 46000
+	ParameterInvalid                  = 47000
+	ParameterInvalidCplusPort         = 47001
+	ParameterInvalidProName           = 47002
+	ParameterInvalidProIdNotByName    = 47003
+	ParameterInvalidDbQuery           = 47004
+	ParameterInvalidCplusTarget       = 47005
+	ParameterInvalidBladePathError    = 47006
+	ParameterInvalidNSNotOne          = 47007
+	ParameterInvalidK8sPodQuery       = 47008
+	ParameterInvalidK8sNodeQuery      = 47009
+	ParameterInvalidDockContainerId   = 47010
+	ParameterInvalidDockContainerName = 47011
+	ParameterRequestFailed            = 48000
+	CommandLess                       = 49000
+	CommandNetworkExist               = 49001
 
 	// 2.2 server error, but the user can hold it
-	ChaosbladeFileNotFound  = 51000
-	CommandTasksetNotFound  = 52000
-	CommandMountNotFound    = 52001
-	CommandUmountNotFound   = 52002
-	CommandTcNotFound       = 52003
-	CommandIptablesNotFound = 52004
-	CommandSedNotFound      = 52005
-	CommandCatNotFound      = 52006
-	CommandSsNotFound       = 52007
-	CommandDdNotFound       = 52008
-	CommandRmNotFound       = 52009
-	CommandTouchNotFound    = 52010
-	CommandMkdirNotFound    = 52011
-	CommandEchoNotFound     = 52012
-	CommandKillNotFound     = 52013
-	CommandMvNotFound       = 52014
-	CommandHeadNotFound     = 52015
-	CommandGrepNotFound     = 52016
-	CommandAwkNotFound      = 52017
-	CommandTarNotFound      = 52018
-	CommandSystemctlNotFound= 52019
-	ChaosbladeServerStarted = 53000
-	UnexpectedStatus        = 54000
-	DockerExecNotFound      = 55000
-	DockerImagePullFailed   = 55001
-	HandlerExecNotFound     = 56000
-	CplusActionNotSupport   = 56001
+	ChaosbladeFileNotFound   = 51000
+	CommandTasksetNotFound   = 52000
+	CommandMountNotFound     = 52001
+	CommandUmountNotFound    = 52002
+	CommandTcNotFound        = 52003
+	CommandIptablesNotFound  = 52004
+	CommandSedNotFound       = 52005
+	CommandCatNotFound       = 52006
+	CommandSsNotFound        = 52007
+	CommandDdNotFound        = 52008
+	CommandRmNotFound        = 52009
+	CommandTouchNotFound     = 52010
+	CommandMkdirNotFound     = 52011
+	CommandEchoNotFound      = 52012
+	CommandKillNotFound      = 52013
+	CommandMvNotFound        = 52014
+	CommandHeadNotFound      = 52015
+	CommandGrepNotFound      = 52016
+	CommandAwkNotFound       = 52017
+	CommandTarNotFound       = 52018
+	CommandSystemctlNotFound = 52019
+	ChaosbladeServerStarted  = 53000
+	UnexpectedStatus         = 54000
+	DockerExecNotFound       = 55000
+	DockerImagePullFailed    = 55001
+	HandlerExecNotFound      = 56000
+	CplusActionNotSupport    = 56001
 
 	// 2.3 server error, but the user can not hold it
 	ResultUnmarshalFailed    = 60000
@@ -209,52 +210,53 @@ const (
 
 var ResponseErr = map[int32]ResultType{
 	//Uninitialized:       {"Uninitialized: access token not found", "Uninitialized: access token not found"},
-	Forbidden:                       {"Forbidden: must be root", "Forbidden: must be root"},
-	ActionNotSupport:                {"`%s`: action not supported", "`%s`: action not supported"},
-	ParameterLess:                   {"less parameter: `%s`", "less parameter: `%s`"},
-	ParameterIllegal:                {"illegal parameter: `%s`", "illegal parameter: `%s`"},
-	ParameterInvalid:                {"invalid parameter: `%s`", "invalid parameter: `%s`"},
-	ParameterInvalidProName:         {"invalid parameter `%s`, `%s` process not found", "invalid parameter `%s`, `%s` process not found"},
-	ParameterInvalidProIdNotByName:  {"invalid parameter `process|pid`, the process ids got by `%s` does not contain the pid `%s` value", "invalid parameter `process|pid`, the process ids got by %s does not contain the pid %s value"},
-	ParameterInvalidCplusPort:       {"invalid parameter `port`, `%s` port not found, please execute prepare command firstly", "invalid parameter port, `%s` port not found, please execute prepare command firstly"},
-	ParameterInvalidDbQuery:         {"invalid parameter `%s`, db record not found", "invalid parameter `%s`, db record not found"},
-	ParameterInvalidCplusTarget:     {"invalid parameter `target`, `%s` target not support", "invalid parameter target, `%s` target not support"},
-	ParameterInvalidBladePathError:  {"invalid parameter `install-path`, chaosblade install into `%s` failed, err: %v", "invalid parameter `install-path`, chaosblade install into `%s` failed, err: %v"},
-	ParameterInvalidNSNotOne:        {"invalid parameter `%s`, only one value can be specified", "invalid parameter `%s`, only one value can be specified"},
-	ParameterInvalidK8sPodQuery:     {"invalid parameter `%s`, can not find pods", "invalid parameter `%s`, can not find pods"},
-	ParameterInvalidK8sNodeQuery:    {"invalid parameter `%s`, can not find node", "invalid parameter `%s`, can not find node"},
-	ParameterInvalidDockContainerId: {"invalid parameter `%s`, can not find container by id", "invalid parameter `%s`, can not find container by id"},
-	ParameterRequestFailed:          {"get request parameter failed", "get request parameter failed"},
-	CommandLess:                     {"less target command", "less target command"},
-	CommandNetworkExist:             {"network tc exec failed! RTNETLINK answers: File exists", "network tc exec failed! RTNETLINK answers: File exists"},
+	Forbidden:                         {"Forbidden: must be root", "Forbidden: must be root"},
+	ActionNotSupport:                  {"`%s`: action not supported", "`%s`: action not supported"},
+	ParameterLess:                     {"less parameter: `%s`", "less parameter: `%s`"},
+	ParameterIllegal:                  {"illegal parameter: `%s`", "illegal parameter: `%s`"},
+	ParameterInvalid:                  {"invalid parameter: `%s`", "invalid parameter: `%s`"},
+	ParameterInvalidProName:           {"invalid parameter `%s`, `%s` process not found", "invalid parameter `%s`, `%s` process not found"},
+	ParameterInvalidProIdNotByName:    {"invalid parameter `process|pid`, the process ids got by `%s` does not contain the pid `%s` value", "invalid parameter `process|pid`, the process ids got by %s does not contain the pid %s value"},
+	ParameterInvalidCplusPort:         {"invalid parameter `port`, `%s` port not found, please execute prepare command firstly", "invalid parameter port, `%s` port not found, please execute prepare command firstly"},
+	ParameterInvalidDbQuery:           {"invalid parameter `%s`, db record not found", "invalid parameter `%s`, db record not found"},
+	ParameterInvalidCplusTarget:       {"invalid parameter `target`, `%s` target not support", "invalid parameter target, `%s` target not support"},
+	ParameterInvalidBladePathError:    {"invalid parameter `install-path`, chaosblade install into `%s` failed, err: %v", "invalid parameter `install-path`, chaosblade install into `%s` failed, err: %v"},
+	ParameterInvalidNSNotOne:          {"invalid parameter `%s`, only one value can be specified", "invalid parameter `%s`, only one value can be specified"},
+	ParameterInvalidK8sPodQuery:       {"invalid parameter `%s`, can not find pods", "invalid parameter `%s`, can not find pods"},
+	ParameterInvalidK8sNodeQuery:      {"invalid parameter `%s`, can not find node", "invalid parameter `%s`, can not find node"},
+	ParameterInvalidDockContainerId:   {"invalid parameter `%s`, can not find container by id", "invalid parameter `%s`, can not find container by id"},
+	ParameterInvalidDockContainerName: {"invalid parameter `%s`, can not find container by name", "invalid parameter `%s`, can not find container by name"},
+	ParameterRequestFailed:            {"get request parameter failed", "get request parameter failed"},
+	CommandLess:                       {"less target command", "less target command"},
+	CommandNetworkExist:               {"network tc exec failed! RTNETLINK answers: File exists", "network tc exec failed! RTNETLINK answers: File exists"},
 
-	ChaosbladeFileNotFound:  {"`%s`: chaosblade file not found", "`%s`: chaosblade file not found"},
-	CommandTasksetNotFound:  {"`taskset`: command not found", "`taskset`: command not found"},
-	CommandMountNotFound:    {"`mount`: command not found", "`mount`: command not found"},
-	CommandUmountNotFound:   {"`umount`: command not found", "`umount`: command not found"},
-	CommandTcNotFound:       {"`tc`: command not found", "`tc`: command not found"},
-	CommandIptablesNotFound: {"`iptables`: command not found", "`iptables`: command not found"},
-	CommandSedNotFound:      {"`sed`: command not found", "`sed`: command not found"},
-	CommandCatNotFound:      {"`cat`: command not found", "`cat`: command not found"},
-	CommandSsNotFound:       {"`ss`: command not found", "`ss`: command not found"},
-	CommandDdNotFound:       {"`dd`: command not found", "`dd`: command not found"},
-	CommandRmNotFound:       {"`rm`: command not found", "`rm`: command not found"},
-	CommandTouchNotFound:    {"`touch`: command not found", "`touch`: command not found"},
-	CommandMkdirNotFound:    {"`mkdir`: command not found", "`mkdir`: command not found"},
-	CommandEchoNotFound:     {"`echo`: command not found", "`echo`: command not found"},
-	CommandKillNotFound:     {"`kill`: command not found", "`kill`: command not found"},
-	CommandMvNotFound:       {"`mv`: command not found", "`mv`: command not found"},
-	CommandHeadNotFound:     {"`head`: command not found", "`head`: command not found"},
-	CommandGrepNotFound:     {"`grep`: command not found", "`grep`: command not found"},
-	CommandAwkNotFound:      {"`awk`: command not found", "`awk`: command not found"},
-	CommandTarNotFound:      {"`tar`: command not found", "`tar`: command not found"},
-	CommandSystemctlNotFound:{"`systemctl`: command not found", "`systemctl`: command not found"}
-	ChaosbladeServerStarted: {"the chaosblade has been started", "the chaosblade has been started. If you want to stop it, you can execute blade server stop command"},
-	UnexpectedStatus:        {"unexpected status, expected status: `%s`, but the real status: `%s`, please wait!", "unexpected status, expected status: `%s`, but the real status: `%s`, please wait!"},
-	DockerExecNotFound:      {"`%s`: the docker exec not found", "`%s`: the docker exec not found"},
-	DockerImagePullFailed:   {"pull image failed, err: %v", "pull image failed, err: %v"},
-	HandlerExecNotFound:     {"`%s`: the handler exec not found", "`%s`: the handler exec not found"},
-	CplusActionNotSupport:   {"`%s`: cplus action not support", "`%s`: cplus action not support"},
+	ChaosbladeFileNotFound:   {"`%s`: chaosblade file not found", "`%s`: chaosblade file not found"},
+	CommandTasksetNotFound:   {"`taskset`: command not found", "`taskset`: command not found"},
+	CommandMountNotFound:     {"`mount`: command not found", "`mount`: command not found"},
+	CommandUmountNotFound:    {"`umount`: command not found", "`umount`: command not found"},
+	CommandTcNotFound:        {"`tc`: command not found", "`tc`: command not found"},
+	CommandIptablesNotFound:  {"`iptables`: command not found", "`iptables`: command not found"},
+	CommandSedNotFound:       {"`sed`: command not found", "`sed`: command not found"},
+	CommandCatNotFound:       {"`cat`: command not found", "`cat`: command not found"},
+	CommandSsNotFound:        {"`ss`: command not found", "`ss`: command not found"},
+	CommandDdNotFound:        {"`dd`: command not found", "`dd`: command not found"},
+	CommandRmNotFound:        {"`rm`: command not found", "`rm`: command not found"},
+	CommandTouchNotFound:     {"`touch`: command not found", "`touch`: command not found"},
+	CommandMkdirNotFound:     {"`mkdir`: command not found", "`mkdir`: command not found"},
+	CommandEchoNotFound:      {"`echo`: command not found", "`echo`: command not found"},
+	CommandKillNotFound:      {"`kill`: command not found", "`kill`: command not found"},
+	CommandMvNotFound:        {"`mv`: command not found", "`mv`: command not found"},
+	CommandHeadNotFound:      {"`head`: command not found", "`head`: command not found"},
+	CommandGrepNotFound:      {"`grep`: command not found", "`grep`: command not found"},
+	CommandAwkNotFound:       {"`awk`: command not found", "`awk`: command not found"},
+	CommandTarNotFound:       {"`tar`: command not found", "`tar`: command not found"},
+	CommandSystemctlNotFound: {"`systemctl`: command not found", "`systemctl`: command not found"},
+	ChaosbladeServerStarted:  {"the chaosblade has been started", "the chaosblade has been started. If you want to stop it, you can execute blade server stop command"},
+	UnexpectedStatus:         {"unexpected status, expected status: `%s`, but the real status: `%s`, please wait!", "unexpected status, expected status: `%s`, but the real status: `%s`, please wait!"},
+	DockerExecNotFound:       {"`%s`: the docker exec not found", "`%s`: the docker exec not found"},
+	DockerImagePullFailed:    {"pull image failed, err: %v", "pull image failed, err: %v"},
+	HandlerExecNotFound:      {"`%s`: the handler exec not found", "`%s`: the handler exec not found"},
+	CplusActionNotSupport:    {"`%s`: cplus action not support", "`%s`: cplus action not support"},
 
 	ResultUnmarshalFailed:    {"exec result unmarshal failed", "`%s`: exec result unmarshal failed, err: %v"},
 	ResultMarshalFailed:      {"exec result marshal failed", "`%s`: exec result marshal failed, err: %v"},
