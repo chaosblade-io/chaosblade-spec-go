@@ -401,7 +401,7 @@ func execScript(ctx context.Context, script, args string) *spec.Response {
 	if !isBladeCmd {
 		outMsg += " " + err.Error()
 	}
-	return spec.ResponseFail(spec.OsCmdExecFailed, fmt.Sprintf(spec.ResponseErr[spec.OsCmdExecFailed].ErrInfo, script+" "+args, outMsg))
+	return spec.ResponseFail(spec.OsCmdExecFailed, outMsg)
 }
 func isBinBladeCommand(script string) *spec.Response {
 	if ok := strings.Contains(script, "/chaosblade"); !ok {
