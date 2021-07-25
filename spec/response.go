@@ -248,7 +248,7 @@ var ResponseErr = map[int32]ResultType{
 	CommandGrepNotFound:     {"`grep`: command not found", "`grep`: command not found"},
 	CommandAwkNotFound:      {"`awk`: command not found", "`awk`: command not found"},
 	CommandTarNotFound:      {"`tar`: command not found", "`tar`: command not found"},
-	CommandSystemctlNotFound:{"`systemctl`: command not found", "`systemctl`: command not found"}
+	CommandSystemctlNotFound:{"`systemctl`: command not found", "`systemctl`: command not found"},
 	ChaosbladeServerStarted: {"the chaosblade has been started", "the chaosblade has been started. If you want to stop it, you can execute blade server stop command"},
 	UnexpectedStatus:        {"unexpected status, expected status: `%s`, but the real status: `%s`, please wait!", "unexpected status, expected status: `%s`, but the real status: `%s`, please wait!"},
 	DockerExecNotFound:      {"`%s`: the docker exec not found", "`%s`: the docker exec not found"},
