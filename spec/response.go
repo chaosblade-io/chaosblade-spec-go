@@ -19,54 +19,9 @@ package spec
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/sirupsen/logrus"
-)
-
-const (
-	IgnoreCode       = "IgnoreCode"
-	OK               = "OK"
-	ReturnOKDirectly = "ReturnOKDirectly"
-	InvalidTimestamp = "InvalidTimestamp"
-	//Forbidden               = "Forbidden"
-	HandlerNotFound         = "HandlerNotFound"
-	TokenNotFound           = "TokenNotFound"
-	DataNotFound            = "DataNotFound"
-	GetProcessError         = "GetProcessError"
-	ServerError             = "ServerError"
-	HandlerClosed           = "HandlerClosed"
-	Timeout                 = "Timeout"
-	Uninitialized           = "Uninitialized"
-	EncodeError             = "EncodeError"
-	DecodeError             = "DecodeError"
-	FileNotFound            = "FileNotFound"
-	DownloadError           = "DownloadError"
-	DeployError             = "DeployError"
-	ServiceSwitchError      = "ServiceSwitchError"
-	DiskNotFound            = "DiskNotFound"
-	DatabaseError           = "DatabaseError"
-	EnvironmentError        = "EnvironmentError"
-	NoWritePermission       = "NoWritePermission"
-	RemoveRecordError       = "RemoveRecordError"
-	ParameterEmpty          = "ParameterEmpty"
-	ParameterTypeError      = "ParameterTypeError"
-	IllegalParameters       = "IllegalParameters"
-	IllegalCommand          = "IllegalCommand"
-	ExecCommandError        = "ExecCommandError"
-	DuplicateError          = "DuplicateError"
-	FaultInjectCmdError     = "FaultInjectCmdError"
-	FaultInjectExecuteError = "FaultInjectExecuteError"
-	FaultInjectNotSupport   = "FaultInjectNotSupport"
-	JavaAgentCmdError       = "JavaAgentCmdError"
-	K8sInvokeError          = "K8sInvokeError"
-	DockerInvokeError       = "DockerInvokeError"
-	DestroyNotSupported     = "DestroyNotSupported"
-	PreHandleError          = "PreHandleError"
-	SandboxInvokeError      = "SandboxInvokeError"
-	CommandNotFound         = "CommandNotFound"
-	StatusError             = "StatusError"
-	UnexpectedCommandError  = "UnexpectedCommandError"
-	CplusProxyCmdError      = "CplusProxyCmdError"
 )
 
 type CodeType struct {
@@ -74,216 +29,93 @@ type CodeType struct {
 	Msg  string
 }
 
-var Code = map[string]CodeType{
-	IgnoreCode:       {100, "ignore code"},
-	OK:               {200, "success"},
-	ReturnOKDirectly: {201, "return ok directly"},
-	InvalidTimestamp: {401, "invalid timestamp"},
-	//Forbidden:               {403, "forbidden"},
-	HandlerNotFound:         {404, "request handler not found"},
-	TokenNotFound:           {405, "access token not found"},
-	DataNotFound:            {406, "data not found"},
-	DestroyNotSupported:     {407, "destroy not supported"},
-	GetProcessError:         {408, "get process error"},
-	ServerError:             {500, "server error"},
-	HandlerClosed:           {501, "handler closed"},
-	PreHandleError:          {502, "pre handle error"},
-	CommandNotFound:         {503, "command not found"},
-	StatusError:             {504, "status error"},
-	Timeout:                 {510, "timeout"},
-	Uninitialized:           {511, "uninitialized"},
-	EncodeError:             {512, "encode error"},
-	DecodeError:             {513, "decode error"},
-	FileNotFound:            {514, "file not found"},
-	DownloadError:           {515, "download file error"},
-	DeployError:             {516, "deploy file error"},
-	ServiceSwitchError:      {517, "service switch error"},
-	DiskNotFound:            {518, "disk not found"},
-	DatabaseError:           {520, "execute db error"},
-	EnvironmentError:        {521, "environment error"},
-	NoWritePermission:       {522, "no write permission"},
-	RemoveRecordError:       {530, "remove record or resource err"},
-	ParameterEmpty:          {600, "parameter is empty"},
-	ParameterTypeError:      {601, "parameter type error"},
-	IllegalParameters:       {602, "illegal parameters"},
-	IllegalCommand:          {603, "illegal command"},
-	ExecCommandError:        {604, "exec command error"},
-	DuplicateError:          {605, "duplicate error"},
-	FaultInjectCmdError:     {701, "cannot handle the faultInject cmd"},
-	FaultInjectExecuteError: {702, "execute faultInject error"},
-	FaultInjectNotSupport:   {703, "the inject type not support"},
-	JavaAgentCmdError:       {704, "cannot handle the javaagent cmd"},
-	K8sInvokeError:          {800, "invoke k8s server api error"},
-	DockerInvokeError:       {801, "invoke docker command error"},
-	SandboxInvokeError:      {802, "invoke sandbox error"},
-	CplusProxyCmdError:      {803, "invoke cplus proxy error"},
-	UnexpectedCommandError:  {901, "unexpected command error"},
-}
-
-type ResultType struct {
-	Err     string
-	ErrInfo string
-}
-
-const (
-	Success = 200
-	// 2. failed
-	// 2.1 client error
-	//Uninitialized          = 41000
-	Forbidden                         = 43000
-	ActionNotSupport                  = 44000
-	ParameterLess                     = 45000
-	ParameterIllegal                  = 46000
-	ParameterInvalid                  = 47000
-	ParameterInvalidCplusPort         = 47001
-	ParameterInvalidProName           = 47002
-	ParameterInvalidProIdNotByName    = 47003
-	ParameterInvalidDbQuery           = 47004
-	ParameterInvalidCplusTarget       = 47005
-	ParameterInvalidBladePathError    = 47006
-	ParameterInvalidNSNotOne          = 47007
-	ParameterInvalidK8sPodQuery       = 47008
-	ParameterInvalidK8sNodeQuery      = 47009
-	ParameterInvalidDockContainerId   = 47010
-	ParameterInvalidDockContainerName = 47011
-	ParameterRequestFailed            = 48000
-	CommandLess                       = 49000
-	CommandNetworkExist               = 49001
-
-	// 2.2 server error, but the user can hold it
-	ChaosbladeFileNotFound   = 51000
-	CommandTasksetNotFound   = 52000
-	CommandMountNotFound     = 52001
-	CommandUmountNotFound    = 52002
-	CommandTcNotFound        = 52003
-	CommandIptablesNotFound  = 52004
-	CommandSedNotFound       = 52005
-	CommandCatNotFound       = 52006
-	CommandSsNotFound        = 52007
-	CommandDdNotFound        = 52008
-	CommandRmNotFound        = 52009
-	CommandTouchNotFound     = 52010
-	CommandMkdirNotFound     = 52011
-	CommandEchoNotFound      = 52012
-	CommandKillNotFound      = 52013
-	CommandMvNotFound        = 52014
-	CommandHeadNotFound      = 52015
-	CommandGrepNotFound      = 52016
-	CommandAwkNotFound       = 52017
-	CommandTarNotFound       = 52018
-	CommandSystemctlNotFound = 52019
-	ChaosbladeServerStarted  = 53000
-	UnexpectedStatus         = 54000
-	DockerExecNotFound       = 55000
-	DockerImagePullFailed    = 55001
-	HandlerExecNotFound      = 56000
-	CplusActionNotSupport    = 56001
-
-	// 2.3 server error, but the user can not hold it
-	ResultUnmarshalFailed    = 60000
-	ResultMarshalFailed      = 60001
-	ChaosbladeServiceStoped  = 61000
-	ProcessIdByNameFailed    = 63010
-	ProcessJudgeExistFailed  = 63011
-	ProcessNotExist          = 63012
-	ProcessGetUsernameFailed = 63014
-	ChannelNil               = 63020
-	SandboxGetPortFailed     = 63030
-	SandboxCreateTokenFailed = 63031
-	FileCantGetLogFile       = 63040
-	FileNotExist             = 63041
-	FileCantReadOrOpen       = 63042
-	BackfileExists           = 63050
-	DbQueryFailed            = 63060
-	K8sExecFailed            = 63061
-	DockerExecFailed         = 63062
-	OsCmdExecFailed          = 63063
-	HttpExecFailed           = 63064
-	OsExecutorNotFound       = 63070
-	ChaosfsClientFailed      = 64000
-	ChaosfsInjectFailed      = 64001
-	ChaosfsRecoverFailed     = 64002
-	SshExecFailed            = 65000
-	SshExecNothing           = 65001
-	SystemdNotFound          = 66001
+var (
+	IgnoreCode                        = CodeType{100, "ignore code"}
+	OK                                = CodeType{200, "success"}
+	ReturnOKDirectly                  = CodeType{201, "return ok directly"}
+	Forbidden                         = CodeType{43000, "Forbidden: must be root"}
+	ActionNotSupport                  = CodeType{44000, "`%s`: action not supported"}
+	ParameterLess                     = CodeType{45000, "less parameter: `%s`"}
+	ParameterIllegal                  = CodeType{46000, "illegal `%s` parameter value: `%s`. %v"}
+	ParameterInvalid                  = CodeType{47000, "invalid `%s` parameter value: `%s`. %v"}
+	ParameterInvalidProName           = CodeType{47001, "invalid parameter `%s`, `%s` process not found"}
+	ParameterInvalidProIdNotByName    = CodeType{47002, "invalid parameter `process|pid`, the process ids got by %s does not contain the pid %s value"}
+	ParameterInvalidCplusPort         = CodeType{47003, "invalid parameter port, `%s` port not found, please execute prepare command firstly"}
+	ParameterInvalidDbQuery           = CodeType{47004, "invalid parameter `%s`, db record not found"}
+	ParameterInvalidCplusTarget       = CodeType{47005, "invalid parameter target, `%s` target not support"}
+	ParameterInvalidBladePathError    = CodeType{47006, "invalid parameter `%s`, deploy chaosblade to `%s` failed, err: %v"}
+	ParameterInvalidNSNotOne          = CodeType{47007, "invalid parameter `%s`, only one value can be specified"}
+	ParameterInvalidK8sPodQuery       = CodeType{47008, "invalid parameter `%s`, can not find pods"}
+	ParameterInvalidK8sNodeQuery      = CodeType{47009, "invalid parameter `%s`, can not find node"}
+	ParameterInvalidDockContainerId   = CodeType{47010, "invalid parameter `%s`, can not find container by id"}
+	ParameterInvalidDockContainerName = CodeType{47011, "invalid parameter `%s`, can not find container by name"}
+	ParameterRequestFailed            = CodeType{48000, "get request parameter failed"}
+	CommandIllegal                    = CodeType{49000, "illegal command, err: %v"}
+	CommandNetworkExist               = CodeType{49001, "network tc exec failed! RTNETLINK answers: File exists"}
+	ChaosbladeFileNotFound            = CodeType{51000, "`%s`: chaosblade file not found"}
+	CommandTasksetNotFound            = CodeType{52000, "`taskset`: command not found"}
+	CommandMountNotFound              = CodeType{52001, "`mount`: command not found"}
+	CommandUmountNotFound             = CodeType{52002, "`umount`: command not found"}
+	CommandTcNotFound                 = CodeType{52003, "`tc`: command not found"}
+	CommandIptablesNotFound           = CodeType{52004, "`iptables`: command not found"}
+	CommandSedNotFound                = CodeType{52005, "`sed`: command not found"}
+	CommandCatNotFound                = CodeType{52006, "`cat`: command not found"}
+	CommandSsNotFound                 = CodeType{52007, "`ss`: command not found"}
+	CommandDdNotFound                 = CodeType{52008, "`dd`: command not found"}
+	CommandRmNotFound                 = CodeType{52009, "`rm`: command not found"}
+	CommandTouchNotFound              = CodeType{52010, "`touch`: command not found"}
+	CommandMkdirNotFound              = CodeType{52011, "`mkdir`: command not found"}
+	CommandEchoNotFound               = CodeType{52012, "`echo`: command not found"}
+	CommandKillNotFound               = CodeType{52013, "`kill`: command not found"}
+	CommandMvNotFound                 = CodeType{52014, "`mv`: command not found"}
+	CommandHeadNotFound               = CodeType{52015, "`head`: command not found"}
+	CommandGrepNotFound               = CodeType{52016, "`grep`: command not found"}
+	CommandAwkNotFound                = CodeType{52017, "`awk`: command not found"}
+	CommandTarNotFound                = CodeType{52018, "`tar`: command not found"}
+	CommandSystemctlNotFound          = CodeType{52019, "`systemctl`: command not found"}
+	CommandNohupNotFound              = CodeType{52020, "`nohup`: command not found"}
+	ChaosbladeServerStarted           = CodeType{53000, "the chaosblade has been started. If you want to stop it, you can execute blade server stop command"}
+	UnexpectedStatus                  = CodeType{54000, "unexpected status, expected status: `%s`, but the real status: `%s`, please wait!"}
+	DockerExecNotFound                = CodeType{55000, "`%s`: the docker exec not found"}
+	DockerImagePullFailed             = CodeType{55001, "pull image failed, err: %v"}
+	HandlerExecNotFound               = CodeType{56000, "`%s`: the handler exec not found"}
+	CplusActionNotSupport             = CodeType{56001, "`%s`: cplus action not support"}
+	ContainerInContextNotFound        = CodeType{56002, "cannot find container, please confirm if the container exists"}
+	PodNotReady                       = CodeType{56003, "`%s` pod is not ready"}
+	ResultUnmarshalFailed             = CodeType{60000, "`%s`: exec result unmarshal failed, err: %v"}
+	ResultMarshalFailed               = CodeType{60001, "`%v`: exec result marshal failed, err: %v"}
+	GenerateUidFailed                 = CodeType{60002, "generate experiment uid failed, err: %v"}
+	ChaosbladeServiceStoped           = CodeType{61000, "chaosblade service has been stopped"}
+	ProcessIdByNameFailed             = CodeType{63010, "`%s`: get process id by name failed, err: %v"}
+	ProcessJudgeExistFailed           = CodeType{63011, "`%s`: judge the process exist or not, failed, err: %v"}
+	ProcessNotExist                   = CodeType{63012, "`%s`: the process not exist"}
+	ProcessGetUsernameFailed          = CodeType{63014, "`%s`: get username failed by the process id, err: %v"}
+	ChannelNil                        = CodeType{63020, "chanel is nil"}
+	SandboxGetPortFailed              = CodeType{63030, "get sandbox port failed, err: %v"}
+	SandboxCreateTokenFailed          = CodeType{63031, "create sandbox token failed, err: %v"}
+	FileCantGetLogFile                = CodeType{63040, "can not get log file"}
+	FileNotExist                      = CodeType{63041, "`%s`: not exist"}
+	FileCantReadOrOpen                = CodeType{63042, "`%s`: can not read or open"}
+	BackfileExists                    = CodeType{63050, "`%s`: backup file exists, may be annother experiment is running"}
+	DbQueryFailed                     = CodeType{63060, "`%s`: db query failed, err: %v"}
+	K8sExecFailed                     = CodeType{63061, "`%s`: k8s exec failed, err: %v"}
+	DockerExecFailed                  = CodeType{63062, "`%s`: docker exec failed, err: %v"}
+	OsCmdExecFailed                   = CodeType{63063, "`%s`: cmd exec failed, err: %v"}
+	HttpExecFailed                    = CodeType{63064, "`%s`: http cmd failed, err: %v"}
+	GetIdentifierFailed               = CodeType{63065, "get experiment identifier failed, err: %v"}
+	OsExecutorNotFound                = CodeType{63070, "`%s`: os executor not found"}
+	ChaosfsClientFailed               = CodeType{64000, "init chaosfs client failed in pod %v, err: %v"}
+	ChaosfsInjectFailed               = CodeType{64001, "inject io exception in pod %s failed, request %v, err: %v"}
+	ChaosfsRecoverFailed              = CodeType{64002, "recover io exception failed in pod  %v, err: %v"}
+	SshExecFailed                     = CodeType{65000, "ssh exec failed, result: %v, err %v"}
+	SshExecNothing                    = CodeType{65001, "cannot get result from remote host, please execute recovery and try again"}
+	SystemdNotFound                   = CodeType{66001, "`%s`: systemd not found, err: %v"}
+	DatabaseError                     = CodeType{67001, "`%s`: failed to execute, err: %v"}
+	DataNotFound                      = CodeType{67002, "`%s` record not found, if it's k8s experiment, please add --target k8s flag to retry"}
 )
 
-var ResponseErr = map[int32]ResultType{
-	//Uninitialized:       {"Uninitialized: access token not found", "Uninitialized: access token not found"},
-	Forbidden:                         {"Forbidden: must be root", "Forbidden: must be root"},
-	ActionNotSupport:                  {"`%s`: action not supported", "`%s`: action not supported"},
-	ParameterLess:                     {"less parameter: `%s`", "less parameter: `%s`"},
-	ParameterIllegal:                  {"illegal parameter: `%s`", "illegal parameter: `%s`"},
-	ParameterInvalid:                  {"invalid parameter: `%s`", "invalid parameter: `%s`"},
-	ParameterInvalidProName:           {"invalid parameter `%s`, `%s` process not found", "invalid parameter `%s`, `%s` process not found"},
-	ParameterInvalidProIdNotByName:    {"invalid parameter `process|pid`, the process ids got by `%s` does not contain the pid `%s` value", "invalid parameter `process|pid`, the process ids got by %s does not contain the pid %s value"},
-	ParameterInvalidCplusPort:         {"invalid parameter `port`, `%s` port not found, please execute prepare command firstly", "invalid parameter port, `%s` port not found, please execute prepare command firstly"},
-	ParameterInvalidDbQuery:           {"invalid parameter `%s`, db record not found", "invalid parameter `%s`, db record not found"},
-	ParameterInvalidCplusTarget:       {"invalid parameter `target`, `%s` target not support", "invalid parameter target, `%s` target not support"},
-	ParameterInvalidBladePathError:    {"invalid parameter `install-path`, chaosblade install into `%s` failed, err: %v", "invalid parameter `install-path`, chaosblade install into `%s` failed, err: %v"},
-	ParameterInvalidNSNotOne:          {"invalid parameter `%s`, only one value can be specified", "invalid parameter `%s`, only one value can be specified"},
-	ParameterInvalidK8sPodQuery:       {"invalid parameter `%s`, can not find pods", "invalid parameter `%s`, can not find pods"},
-	ParameterInvalidK8sNodeQuery:      {"invalid parameter `%s`, can not find node", "invalid parameter `%s`, can not find node"},
-	ParameterInvalidDockContainerId:   {"invalid parameter `%s`, can not find container by id", "invalid parameter `%s`, can not find container by id"},
-	ParameterInvalidDockContainerName: {"invalid parameter `%s`, can not find container by name", "invalid parameter `%s`, can not find container by name"},
-	ParameterRequestFailed:            {"get request parameter failed", "get request parameter failed"},
-	CommandLess:                       {"less target command", "less target command"},
-	CommandNetworkExist:               {"network tc exec failed! RTNETLINK answers: File exists", "network tc exec failed! RTNETLINK answers: File exists"},
-
-	ChaosbladeFileNotFound:   {"`%s`: chaosblade file not found", "`%s`: chaosblade file not found"},
-	CommandTasksetNotFound:   {"`taskset`: command not found", "`taskset`: command not found"},
-	CommandMountNotFound:     {"`mount`: command not found", "`mount`: command not found"},
-	CommandUmountNotFound:    {"`umount`: command not found", "`umount`: command not found"},
-	CommandTcNotFound:        {"`tc`: command not found", "`tc`: command not found"},
-	CommandIptablesNotFound:  {"`iptables`: command not found", "`iptables`: command not found"},
-	CommandSedNotFound:       {"`sed`: command not found", "`sed`: command not found"},
-	CommandCatNotFound:       {"`cat`: command not found", "`cat`: command not found"},
-	CommandSsNotFound:        {"`ss`: command not found", "`ss`: command not found"},
-	CommandDdNotFound:        {"`dd`: command not found", "`dd`: command not found"},
-	CommandRmNotFound:        {"`rm`: command not found", "`rm`: command not found"},
-	CommandTouchNotFound:     {"`touch`: command not found", "`touch`: command not found"},
-	CommandMkdirNotFound:     {"`mkdir`: command not found", "`mkdir`: command not found"},
-	CommandEchoNotFound:      {"`echo`: command not found", "`echo`: command not found"},
-	CommandKillNotFound:      {"`kill`: command not found", "`kill`: command not found"},
-	CommandMvNotFound:        {"`mv`: command not found", "`mv`: command not found"},
-	CommandHeadNotFound:      {"`head`: command not found", "`head`: command not found"},
-	CommandGrepNotFound:      {"`grep`: command not found", "`grep`: command not found"},
-	CommandAwkNotFound:       {"`awk`: command not found", "`awk`: command not found"},
-	CommandTarNotFound:       {"`tar`: command not found", "`tar`: command not found"},
-	CommandSystemctlNotFound: {"`systemctl`: command not found", "`systemctl`: command not found"},
-	ChaosbladeServerStarted:  {"the chaosblade has been started", "the chaosblade has been started. If you want to stop it, you can execute blade server stop command"},
-	UnexpectedStatus:         {"unexpected status, expected status: `%s`, but the real status: `%s`, please wait!", "unexpected status, expected status: `%s`, but the real status: `%s`, please wait!"},
-	DockerExecNotFound:       {"`%s`: the docker exec not found", "`%s`: the docker exec not found"},
-	DockerImagePullFailed:    {"pull image failed, err: %v", "pull image failed, err: %v"},
-	HandlerExecNotFound:      {"`%s`: the handler exec not found", "`%s`: the handler exec not found"},
-	CplusActionNotSupport:    {"`%s`: cplus action not support", "`%s`: cplus action not support"},
-
-	ResultUnmarshalFailed:    {"exec result unmarshal failed", "`%s`: exec result unmarshal failed, err: %v"},
-	ResultMarshalFailed:      {"exec result marshal failed", "`%s`: exec result marshal failed, err: %v"},
-	ChaosbladeServiceStoped:  {"chaosblade service has been stoped", "chaosblade service has been stoped"},
-	ProcessIdByNameFailed:    {"system error, uid: `%s`", "`%s`: get process id by name failed, err: %v"},
-	ProcessJudgeExistFailed:  {"system error, uid: `%s`", "`%s`: judge the process exist or not, failed, err: %v"},
-	ProcessNotExist:          {"system error, uid: `%s`", "`%s`: the process not exist"},
-	ProcessGetUsernameFailed: {"system error, uid: `%s`", "`%s`: get username failed by the process id, err: %v"},
-	ChannelNil:               {"system error, uid: `%s`", "chanel is nil"},
-	SandboxGetPortFailed:     {"system error, uid: `%s`", "get sandbox port failed, err: %v"},
-	SandboxCreateTokenFailed: {"system error, uid: `%s`", "create sandbox token failed, err: %v"},
-	FileCantGetLogFile:       {"system error, uid: `%s`", "can not get log file"},
-	FileNotExist:             {"system error, uid: `%s`", "`%s`: not exist"},
-	FileCantReadOrOpen:       {"system error, uid: `%s`", "`%s`: can not read or open"},
-	BackfileExists:           {"system error, uid: `%s`", "`%s`: backup file exists, may be annother experiment is running"},
-	DbQueryFailed:            {"system error, uid: `%s`", "`%s`: db query failed, err: %v"},
-	K8sExecFailed:            {"system error, uid: `%s`", "`%s`: k8s exec failed, err: %v"},
-	DockerExecFailed:         {"system error, uid: `%s`", "`%s`: docker exec failed, err: %v"},
-	OsCmdExecFailed:          {"system error, uid: `%s`", "`%s`: cmd exec failed, err: %v"},
-	HttpExecFailed:           {"system error, uid: `%s`", "`%s`: http cmd failed, err: %v"},
-	OsExecutorNotFound:       {"system error, uid: `%s`", "`%s`: os executor not found"},
-	ChaosfsClientFailed:      {"init chaosfs client failed in pod %v, err: %v", "init chaosfs client failed in pod %v, err: %v"},
-	ChaosfsInjectFailed:      {"inject io exception in pod %s failed, request %v, err: %v", "inject io exception in pod %s failed, request %v, err: %v"},
-	ChaosfsRecoverFailed:     {"recover io exception failed in pod  %v, err: %v", "recover io exception failed in pod  %v, err: %v"},
-	SshExecFailed:            {"ssh exec failed, result: %v, err %v", "ssh exec failed, result: %v, err %v"},
-	SshExecNothing:           {"cannt get reuslt from remote host, please execute recovery and try again", "cannt get reuslt from remote host, please execute recovery and try again"},
-	SystemdNotFound:          {"systemd not found : `%s`", "`%s`: systemd not found, err: %v"},
+func (c CodeType) Sprintf(values ...interface{}) string {
+	return fmt.Sprintf(c.Msg, values...)
 }
 
 type Response struct {
@@ -313,25 +145,31 @@ func ReturnFail(codeType CodeType, err string) *Response {
 	return &Response{Code: codeType.Code, Success: false, Err: err}
 }
 
-func ReturnFailWitResult(codeType CodeType, err string, result interface{}) *Response {
-	return &Response{Code: codeType.Code, Success: false, Err: err, Result: result}
-}
-
 func ReturnSuccess(result interface{}) *Response {
-	return &Response{Code: Code[OK].Code, Success: true, Result: result}
+	return &Response{Code: OK.Code, Success: true, Result: result}
 }
 
 func ReturnResultIgnoreCode(result interface{}) *Response {
-	return &Response{Code: Code[IgnoreCode].Code, Result: result}
+	return &Response{Code: IgnoreCode.Code, Result: result}
 }
 
-// new return func for unify errno
-func ResponseFailWaitResult(status int32, err string, result interface{}) *Response {
+func ResponseFail(status int32, err string, result interface{}) *Response {
 	return &Response{Code: status, Success: false, Err: err, Result: result}
 }
 
-func ResponseFail(status int32, err string) *Response {
-	return &Response{Code: status, Success: false, Err: err}
+func ResponseFailWithFlags(codeType CodeType, flags ...interface{}) *Response {
+	if flags == nil {
+		return &Response{Code: codeType.Code, Success: false, Err: codeType.Msg}
+	}
+	return &Response{Code: codeType.Code, Success: false, Err: fmt.Sprintf(codeType.Msg, flags...)}
+}
+
+func ResponseFailWithResult(codeType CodeType, result interface{}, flags ...interface{}) *Response {
+	return &Response{Code: codeType.Code, Success: false, Result: result, Err: fmt.Sprintf(codeType.Msg, flags...)}
+}
+
+func Success() *Response {
+	return ReturnSuccess(nil)
 }
 
 //ToString
@@ -346,13 +184,13 @@ func (response *Response) ToString() string {
 // Decode return the response that wraps the content
 func Decode(content string, defaultValue *Response) *Response {
 	var resp Response
+	content = strings.TrimSpace(content)
 	err := json.Unmarshal([]byte(content), &resp)
 	if err != nil {
 		if defaultValue == nil {
-			defaultValue = ResponseFailWaitResult(ResultUnmarshalFailed, ResponseErr[ResultUnmarshalFailed].Err,
-				fmt.Sprintf(ResponseErr[ResultUnmarshalFailed].ErrInfo, content, err.Error()))
+			defaultValue = ResponseFailWithFlags(ResultUnmarshalFailed, content, err.Error())
 		}
-		logrus.Warningf("decode %s err, return default value, %s", content, defaultValue.Print())
+		logrus.Debugf("decode %s err, return default value, %s", content, defaultValue.Print())
 		return defaultValue
 	}
 	return &resp

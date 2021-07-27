@@ -85,6 +85,7 @@ func TestRemoveDuplicates(t *testing.T) {
 
 func TestParseIntegerListToStringSlice(t *testing.T) {
 	type args struct {
+		flagName  string
 		flagValue string
 	}
 	tests := []struct {
@@ -93,16 +94,16 @@ func TestParseIntegerListToStringSlice(t *testing.T) {
 		want    []string
 		wantErr bool
 	}{
-		{name: "split by comma", args: args{flagValue: "8080,8081,8082"},
+		{name: "split by comma", args: args{flagName: "local-port", flagValue: "8080,8081,8082"},
 			want: []string{"8080", "8081", "8082"}},
-		{name: "split by connector", args: args{flagValue: "8080-8083"},
+		{name: "split by connector", args: args{flagName: "local-port", flagValue: "8080-8083"},
 			want: []string{"8080", "8081", "8082", "8083"}},
-		{name: "split by comma and connector", args: args{flagValue: "7001,8080-8083"},
+		{name: "split by comma and connector", args: args{flagName: "local-port", flagValue: "7001,8080-8083"},
 			want: []string{"7001", "8080", "8081", "8082", "8083"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ParseIntegerListToStringSlice(tt.args.flagValue)
+			got, err := ParseIntegerListToStringSlice(tt.args.flagName, tt.args.flagValue)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParseIntegerListToStringSlice() error = %v, wantErr %v", err, tt.wantErr)
 				return

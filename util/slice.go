@@ -57,22 +57,23 @@ func ParseIntegerListToStringSlice(flagName, flagValue string) ([]string, error)
 		if !strings.Contains(value, "-") {
 			_, err := strconv.Atoi(value)
 			if err != nil {
-				return values, fmt.Errorf(spec.ResponseErr[spec.ParameterIllegal].ErrInfo, flagName)
+				return values, fmt.Errorf(spec.ParameterIllegal.Sprintf(flagName, flagValue, err))
 			}
 			values = append(values, value)
 			continue
 		}
 		ranges := strings.Split(value, "-")
 		if len(ranges) != 2 {
-			return values, fmt.Errorf(spec.ResponseErr[spec.ParameterIllegal].ErrInfo, flagName)
+			return values, fmt.Errorf(spec.ParameterIllegal.Sprintf(flagName, flagValue,
+				"Does not conform to the data format, a connector is required"))
 		}
 		startIndex, err := strconv.Atoi(strings.TrimSpace(ranges[0]))
 		if err != nil {
-			return values, fmt.Errorf(spec.ResponseErr[spec.ParameterIllegal].ErrInfo, flagName)
+			return values, fmt.Errorf(spec.ParameterIllegal.Sprintf(flagName, flagValue, err))
 		}
 		endIndex, err := strconv.Atoi(strings.TrimSpace(ranges[1]))
 		if err != nil {
-			return values, fmt.Errorf(spec.ResponseErr[spec.ParameterIllegal].ErrInfo, flagName)
+			return values, fmt.Errorf(spec.ParameterIllegal.Sprintf(flagName, flagValue, err))
 		}
 		for i := startIndex; i <= endIndex; i++ {
 			values = append(values, strconv.Itoa(i))
