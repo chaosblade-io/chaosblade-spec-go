@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -202,56 +201,39 @@ func (l *LocalChannel) IsAllCommandsAvailable(commandNames []string) (*spec.Resp
 		}
 		switch commandName {
 		case "rm":
-			return spec.ResponseFailWaitResult(spec.CommandRmNotFound, spec.ResponseErr[spec.CommandRmNotFound].Err,
-				spec.ResponseErr[spec.CommandRmNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandRmNotFound), false
 		case "dd":
-			return spec.ResponseFailWaitResult(spec.CommandDdNotFound, spec.ResponseErr[spec.CommandDdNotFound].Err,
-				spec.ResponseErr[spec.CommandDdNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandDdNotFound), false
 		case "touch":
-			return spec.ResponseFailWaitResult(spec.CommandTouchNotFound, spec.ResponseErr[spec.CommandTouchNotFound].Err,
-				spec.ResponseErr[spec.CommandTouchNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandTouchNotFound), false
 		case "mkdir":
-			return spec.ResponseFailWaitResult(spec.CommandMkdirNotFound, spec.ResponseErr[spec.CommandMkdirNotFound].Err,
-				spec.ResponseErr[spec.CommandMkdirNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandMkdirNotFound), false
 		case "echo":
-			return spec.ResponseFailWaitResult(spec.CommandEchoNotFound, spec.ResponseErr[spec.CommandEchoNotFound].Err,
-				spec.ResponseErr[spec.CommandEchoNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandEchoNotFound), false
 		case "kill":
-			return spec.ResponseFailWaitResult(spec.CommandKillNotFound, spec.ResponseErr[spec.CommandKillNotFound].Err,
-				spec.ResponseErr[spec.CommandKillNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandKillNotFound), false
 		case "mv":
-			return spec.ResponseFailWaitResult(spec.CommandMvNotFound, spec.ResponseErr[spec.CommandMvNotFound].Err,
-				spec.ResponseErr[spec.CommandMvNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandMvNotFound), false
 		case "mount":
-			return spec.ResponseFailWaitResult(spec.CommandMountNotFound, spec.ResponseErr[spec.CommandMountNotFound].Err,
-				spec.ResponseErr[spec.CommandMountNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandMountNotFound), false
 		case "umount":
-			return spec.ResponseFailWaitResult(spec.CommandUmountNotFound, spec.ResponseErr[spec.CommandUmountNotFound].Err,
-				spec.ResponseErr[spec.CommandUmountNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandUmountNotFound), false
 		case "tc":
-			return spec.ResponseFailWaitResult(spec.CommandTcNotFound, spec.ResponseErr[spec.CommandTcNotFound].Err,
-				spec.ResponseErr[spec.CommandTcNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandTcNotFound), false
 		case "head":
-			return spec.ResponseFailWaitResult(spec.CommandHeadNotFound, spec.ResponseErr[spec.CommandHeadNotFound].Err,
-				spec.ResponseErr[spec.CommandHeadNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandHeadNotFound), false
 		case "grep":
-			return spec.ResponseFailWaitResult(spec.CommandGrepNotFound, spec.ResponseErr[spec.CommandGrepNotFound].Err,
-				spec.ResponseErr[spec.CommandGrepNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandGrepNotFound), false
 		case "cat":
-			return spec.ResponseFailWaitResult(spec.CommandCatNotFound, spec.ResponseErr[spec.CommandCatNotFound].Err,
-				spec.ResponseErr[spec.CommandCatNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandCatNotFound), false
 		case "iptables":
-			return spec.ResponseFailWaitResult(spec.CommandIptablesNotFound, spec.ResponseErr[spec.CommandIptablesNotFound].Err,
-				spec.ResponseErr[spec.CommandIptablesNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandIptablesNotFound), false
 		case "sed":
-			return spec.ResponseFailWaitResult(spec.CommandSedNotFound, spec.ResponseErr[spec.CommandSedNotFound].Err,
-				spec.ResponseErr[spec.CommandSedNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandSedNotFound), false
 		case "awk":
-			return spec.ResponseFailWaitResult(spec.CommandAwkNotFound, spec.ResponseErr[spec.CommandAwkNotFound].Err,
-				spec.ResponseErr[spec.CommandAwkNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandAwkNotFound), false
 		case "tar":
-			return spec.ResponseFailWaitResult(spec.CommandAwkNotFound, spec.ResponseErr[spec.CommandAwkNotFound].Err,
-				spec.ResponseErr[spec.CommandAwkNotFound].ErrInfo), false
+			return spec.ResponseFailWithFlags(spec.CommandTarNotFound), false
 		}
 	}
 	return nil, true
@@ -375,46 +357,37 @@ func (l *LocalChannel) GetPidsByLocalPort(localPort string) ([]string, error) {
 
 // execScript invokes exec.CommandContext
 func execScript(ctx context.Context, script, args string) *spec.Response {
+	isBladeCommand := isBladeCommand(script)
+	if isBladeCommand && !util.IsExist(script) {
+		// TODO nohup invoking
+		return spec.ResponseFailWithFlags(spec.ChaosbladeFileNotFound, script)
+	}
 	newCtx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
 	if ctx == context.Background() {
 		ctx = newCtx
 	}
-	isBladeCmd := isBladeCommand(script)
 	script = strings.Replace(script, " ", `\ `, -1)
-	logrus.Debugf("script: %s %s", script, args)
-	if resp := isBinBladeCommand(script); resp != nil {
-		return resp
-	}
-
+	logrus.Debugf("Command: %s %s", script, args)
+	// TODO /bin/sh 的问题
 	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", script+" "+args)
 	output, err := cmd.CombinedOutput()
 	outMsg := string(output)
-
+	logrus.Debugf("Command Result, output: %v, err: %v", outMsg, err)
+	// TODO shell-init错误
+	if strings.TrimSpace(outMsg) != "" {
+		resp := spec.Decode(outMsg, nil)
+		if resp.Code != spec.ResultUnmarshalFailed.Code {
+			return resp
+		}
+	}
 	if err == nil {
 		return spec.ReturnSuccess(outMsg)
 	}
-
-	if strings.Contains(outMsg, "RTNETLINK answers: File exists") {
-		return spec.ResponseFail(spec.CommandNetworkExist, spec.ResponseErr[spec.CommandNetworkExist].ErrInfo)
-	}
-	if !isBladeCmd {
-		outMsg += " " + err.Error()
-	}
-	return spec.ResponseFail(spec.OsCmdExecFailed, outMsg)
-}
-func isBinBladeCommand(script string) *spec.Response {
-	if ok := strings.Contains(script, "/chaosblade"); !ok {
-		return nil
-	}
-
-	if ok := util.IsExist(script); !ok {
-		return spec.ResponseFail(spec.ChaosbladeFileNotFound, fmt.Sprintf(spec.ResponseErr[spec.ChaosbladeFileNotFound].Err, script))
-	}
-	return nil
+	outMsg += " " + err.Error()
+	return spec.ResponseFailWithFlags(spec.OsCmdExecFailed, cmd, outMsg)
 }
 
 func isBladeCommand(script string) bool {
-	return script == path.Join(util.GetProgramPath(), "blade") ||
-		script == "blade"
+	return strings.HasSuffix(script, util.GetProgramPath())
 }
