@@ -50,6 +50,7 @@ var (
 	ParameterInvalidDockContainerId   = CodeType{47010, "invalid parameter `%s`, can not find container by id"}
 	ParameterInvalidDockContainerName = CodeType{47011, "invalid parameter `%s`, can not find container by name"}
 	ParameterInvalidTooManyProcess    = CodeType{47012, "invalid parameter process, too many `%s` processes found"}
+	DeployChaosBladeFailed            = CodeType{47013, "deploy chaosblade to `%s` failed, err: %v"}
 	ParameterRequestFailed            = CodeType{48000, "get request parameter failed"}
 	CommandIllegal                    = CodeType{49000, "illegal command, err: %v"}
 	CommandNetworkExist               = CodeType{49001, "network tc exec failed! RTNETLINK answers: File exists"}
