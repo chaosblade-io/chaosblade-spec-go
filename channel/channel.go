@@ -60,3 +60,4 @@ type OsChannel interface {
 // grep ${key}
 const ProcessKey = "process"
 const ExcludeProcessKey = "excludeProcess"
+const ProcessCommandKey = "processCommand"

@@ -49,6 +49,7 @@ var (
 	ParameterInvalidK8sNodeQuery      = CodeType{47009, "invalid parameter `%s`, can not find node"}
 	ParameterInvalidDockContainerId   = CodeType{47010, "invalid parameter `%s`, can not find container by id"}
 	ParameterInvalidDockContainerName = CodeType{47011, "invalid parameter `%s`, can not find container by name"}
+	ParameterInvalidTooManyProcess    = CodeType{47012, "invalid parameter process, too many `%s` processes found"}
 	ParameterRequestFailed            = CodeType{48000, "get request parameter failed"}
 	CommandIllegal                    = CodeType{49000, "illegal command, err: %v"}
 	CommandNetworkExist               = CodeType{49001, "network tc exec failed! RTNETLINK answers: File exists"}
