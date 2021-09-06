@@ -101,8 +101,12 @@ func ConvertSpecToModels(commandSpec spec.ExpModelCommandSpec, prepare spec.ExpP
 				return matchers
 			}(),
 			ActionFlags: func() []spec.ExpFlag {
+				flagsMap := make(map[string]struct{}, 0)
 				flags := make([]spec.ExpFlag, 0)
 				for _, m := range action.Flags() {
+					if _, ok := flagsMap[m.FlagName()]; ok {
+						continue
+					}
 					flags = append(flags, spec.ExpFlag{
 						Name:                  m.FlagName(),
 						Desc:                  m.FlagDesc(),
@@ -110,8 +114,12 @@ func ConvertSpecToModels(commandSpec spec.ExpModelCommandSpec, prepare spec.ExpP
 						Required:              m.FlagRequired(),
 						RequiredWhenDestroyed: m.FlagRequiredWhenDestroyed(),
 					})
+					flagsMap[m.FlagName()] = struct{}{}
 				}
 				for _, m := range commandSpec.Flags() {
+					if _, ok := flagsMap[m.FlagName()]; ok {
+						continue
+					}
 					flags = append(flags, spec.ExpFlag{
 						Name:                  m.FlagName(),
 						Desc:                  m.FlagDesc(),
@@ -119,25 +127,34 @@ func ConvertSpecToModels(commandSpec spec.ExpModelCommandSpec, prepare spec.ExpP
 						Required:              m.FlagRequired(),
 						RequiredWhenDestroyed: m.FlagRequiredWhenDestroyed(),
 					})
+					flagsMap[m.FlagName()] = struct{}{}
 				}
-				flags = append(flags,
-					spec.ExpFlag{
+				if _, ok := flagsMap["timeout"]; !ok {
+					flags = append(flags, spec.ExpFlag{
 						Name:                  "timeout",
 						Desc:                  "set timeout for experiment",
 						Required:              false,
 						RequiredWhenDestroyed: false,
-					},
-					spec.ExpFlag{
+					})
+					flagsMap["timeout"] = struct{}{}
+				}
+				if _, ok := flagsMap["async"]; !ok {
+					flags = append(flags, spec.ExpFlag{
 						Name:     "async",
 						Desc:     "whether to create asynchronously, default is false",
 						Required: false,
-					},
-					spec.ExpFlag{
+						NoArgs:   true,
+					})
+					flagsMap["async"] = struct{}{}
+				}
+				if _, ok := flagsMap["endpoint"]; !ok {
+					flags = append(flags, spec.ExpFlag{
 						Name:     "endpoint",
 						Desc:     "the create result reporting address. It takes effect only when the async value is true and the value is not empty",
 						Required: false,
-					},
-				)
+					})
+					flagsMap["endpoint"] = struct{}{}
+				}
 				return flags
 			}(),
 			ActionPrograms:   action.Programs(),
