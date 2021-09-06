@@ -111,10 +111,25 @@ func (l *LocalChannel) GetPidsByProcessName(processName string, ctx context.Cont
 	if otherConditionProcessValue != nil {
 		otherConditionProcessName = otherConditionProcessValue.(string)
 	}
+	processCommandValue := ctx.Value(ProcessCommandKey)
+	processCommandName := ""
+	if processCommandValue != nil {
+		processCommandName = processCommandValue.(string)
+	}
 	currPid := os.Getpid()
 	excludeProcesses := getExcludeProcesses(ctx)
 	pids := make([]string, 0)
 	for _, p := range processes {
+		if processCommandName != "" {
+			name, err := p.Name()
+			if err != nil {
+				logrus.WithField("processCommand", processCommandName).WithError(err).Debugln("get process command err")
+				continue
+			}
+			if !strings.Contains(name, processCommandName) {
+				continue
+			}
+		}
 		cmdline, err := p.Cmdline()
 		if err != nil {
 			logrus.WithField("pid", p.Pid).WithError(err).Debugln("get command line err")
@@ -126,6 +141,7 @@ func (l *LocalChannel) GetPidsByProcessName(processName string, ctx context.Cont
 		logrus.WithFields(logrus.Fields{
 			"cmdline":                   cmdline,
 			"processName":               processName,
+			"processCommand":            processCommandName,
 			"otherConditionProcessName": otherConditionProcessName,
 			"excludeProcesses":          excludeProcesses,
 		}).Debugln("process info")
