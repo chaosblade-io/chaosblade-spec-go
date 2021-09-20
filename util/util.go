@@ -27,10 +27,8 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"os/exec"
 	"os/user"
 	"path"
-	"path/filepath"
 	"reflect"
 	"runtime"
 	"time"
@@ -48,14 +46,8 @@ func GetProgramPath() string {
 	if proPath != "" {
 		return proPath
 	}
-	dir, err := exec.LookPath(os.Args[0])
-	if err != nil {
-		log.Fatal("cannot get the process path")
-	}
-	if p, err := os.Readlink(dir); err == nil {
-		dir = p
-	}
-	proPath, err = filepath.Abs(filepath.Dir(dir))
+	var err error
+	proPath, err = os.Getwd()
 	if err != nil {
 		log.Fatal("cannot get the full process path")
 	}

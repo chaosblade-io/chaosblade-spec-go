@@ -16,7 +16,10 @@
 
 package util
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestIsExist_ForMountPoint(t *testing.T) {
 	tests := []struct {
@@ -30,6 +33,15 @@ func TestIsExist_ForMountPoint(t *testing.T) {
 	for _, tt := range tests {
 		if got := IsExist(tt.device); got != tt.want {
 			t.Errorf("unexpected result: %t, expected: %t", got, tt.want)
+		}
+	}
+}
+
+func TestGetProgramPath(t *testing.T) {
+	tests := []string{"chaosblade-spec-go/util"}
+	for _, tt := range tests {
+		if got := GetProgramPath(); !strings.Contains(got, tt) {
+			t.Errorf("unexpected result: %s, expected: %s", got, tt)
 		}
 	}
 }
