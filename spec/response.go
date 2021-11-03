@@ -80,6 +80,8 @@ var (
 	UnexpectedStatus                  = CodeType{54000, "unexpected status, expected status: `%s`, but the real status: `%s`, please wait!"}
 	DockerExecNotFound                = CodeType{55000, "`%s`: the docker exec not found"}
 	DockerImagePullFailed             = CodeType{55001, "pull image failed, err: %v"}
+	CriExecNotFound                   = CodeType{55002, "`%s`, the cri exc not found"}
+	ImagePullFailed                   = CodeType{55003, "`%s`, pull image failed, err: %v"}
 	HandlerExecNotFound               = CodeType{56000, "`%s`: the handler exec not found"}
 	CplusActionNotSupport             = CodeType{56001, "`%s`: cplus action not support"}
 	ContainerInContextNotFound        = CodeType{56002, "cannot find container, please confirm if the container exists"}
@@ -105,6 +107,8 @@ var (
 	OsCmdExecFailed                   = CodeType{63063, "`%s`: cmd exec failed, err: %v"}
 	HttpExecFailed                    = CodeType{63064, "`%s`: http cmd failed, err: %v"}
 	GetIdentifierFailed               = CodeType{63065, "get experiment identifier failed, err: %v"}
+	CreateContainerFailed             = CodeType{63066, "create container failed, err: %v"}
+	ContainerExecFailed               = CodeType{63067, "`%s`: container exec failed, err: %v"}
 	OsExecutorNotFound                = CodeType{63070, "`%s`: os executor not found"}
 	ChaosfsClientFailed               = CodeType{64000, "init chaosfs client failed in pod %v, err: %v"}
 	ChaosfsInjectFailed               = CodeType{64001, "inject io exception in pod %s failed, request %v, err: %v"}

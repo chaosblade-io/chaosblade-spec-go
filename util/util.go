@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -97,6 +98,26 @@ func GenerateUid() (string, error) {
 		return "", err
 	}
 	return hex.EncodeToString(b), nil
+}
+
+// GenerateContainerId for container
+func GenerateContainerId() string {
+	b := make([]byte, 32)
+	rand.Read(b)
+	return hex.EncodeToString(b)
+}
+
+func GenerateExecID() string {
+	bytesLength := 8
+	b := make([]byte, bytesLength)
+	n, err := rand.Read(b)
+	if err != nil {
+		panic(err)
+	}
+	if n != bytesLength {
+		panic(errors.New(fmt.Sprintf("expected %d bytes, got %d bytes", bytesLength, n)))
+	}
+	return hex.EncodeToString(b)
 }
 
 func IsNil(i interface{}) bool {
