@@ -44,6 +44,10 @@ var binPath string
 var libPath string
 var yamlPath string
 
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
 // GetProgramPath
 func GetProgramPath() string {
 	if proPath != "" {
@@ -91,7 +95,6 @@ func GetYamlHome() string {
 
 // GenerateUid for exp
 func GenerateUid() (string, error) {
-	rand.Seed(time.Now().UnixNano())
 	b := make([]byte, 8)
 	_, err := rand.Read(b)
 	if err != nil {
