@@ -29,17 +29,23 @@ import (
 const (
 	Blade = 1
 	Bin   = 2
+	Custom= 3
 )
 
 const BladeLog = "chaosblade.log"
 
 var (
 	Debug    bool
+	LogPath  string
 	LogLevel string
 )
 
 func AddDebugFlag() {
 	flag.BoolVar(&Debug, "debug", false, "set debug mode")
+}
+
+func AddLogPathFlag() {
+	flag.StringVar(&LogPath, "log-path", GetProgramPath(), "the directory path to save chaosblade.log.")
 }
 
 func AddLogLevelFlag() {
@@ -127,6 +133,8 @@ func GetLogPath(programType int) (string, error) {
 		binDir = GetProgramPath()
 	case Bin:
 		binDir = GetProgramParentPath()
+	case Custom:
+		binDir = LogPath
 	default:
 		binDir = GetProgramPath()
 	}
