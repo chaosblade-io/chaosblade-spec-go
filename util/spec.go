@@ -159,6 +159,7 @@ func ConvertSpecToModels(commandSpec spec.ExpModelCommandSpec, prepare spec.ExpP
 			}(),
 			ActionPrograms:   action.Programs(),
 			ActionCategories: action.Categories(),
+			ActionProcessHang: action.ProcessHang(),
 		}
 		model.ExpActions = append(model.ExpActions, actionModel)
 	}

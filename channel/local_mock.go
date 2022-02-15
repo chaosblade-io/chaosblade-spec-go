@@ -30,15 +30,15 @@ type MockLocalChannel struct {
 	RunFunc                     func(ctx context.Context, script, args string) *spec.Response
 	GetPidsByProcessCmdNameFunc func(processName string, ctx context.Context) ([]string, error)
 	GetPidsByProcessNameFunc    func(processName string, ctx context.Context) ([]string, error)
-	GetPsArgsFunc               func() string
-	IsCommandAvailableFunc      func(commandName string) bool
+	GetPsArgsFunc               func(ctx context.Context) string
+	IsCommandAvailableFunc      func(ctx context.Context, commandName string) bool
 	ProcessExistsFunc           func(pid string) (bool, error)
 	GetPidUserFunc              func(pid string) (string, error)
-	GetPidsByLocalPortsFunc     func(localPorts []string) ([]string, error)
-	GetPidsByLocalPortFunc      func(localPort string) ([]string, error)
+	GetPidsByLocalPortsFunc     func(ctx context.Context, localPorts []string) ([]string, error)
+	GetPidsByLocalPortFunc      func(ctx context.Context, localPort string) ([]string, error)
 }
 
-func NewMockLocalChannel() OsChannel {
+func NewMockLocalChannel() spec.Channel {
 	return &MockLocalChannel{
 		ScriptPath:                  util.GetBinPath(),
 		RunFunc:                     defaultRunFunc,
@@ -53,6 +53,10 @@ func NewMockLocalChannel() OsChannel {
 	}
 }
 
+func (l *MockLocalChannel) Name() string  {
+	return "mock"
+}
+
 func (mlc *MockLocalChannel) GetPidsByProcessCmdName(processName string, ctx context.Context) ([]string, error) {
 	return mlc.GetPidsByProcessCmdNameFunc(processName, ctx)
 }
@@ -61,19 +65,19 @@ func (mlc *MockLocalChannel) GetPidsByProcessName(processName string, ctx contex
 	return mlc.GetPidsByProcessNameFunc(processName, ctx)
 }
 
-func (mlc *MockLocalChannel) GetPsArgs() string {
-	return mlc.GetPsArgsFunc()
+func (mlc *MockLocalChannel) GetPsArgs(ctx context.Context) string {
+	return mlc.GetPsArgsFunc(ctx)
 }
 
-func (mlc *MockLocalChannel) isAlpinePlatform() bool {
+func (mlc *MockLocalChannel) IsAlpinePlatform(ctx context.Context) bool {
 	return false
 }
-func (mlc *MockLocalChannel) IsAllCommandsAvailable(commandNames []string) (*spec.Response, bool) {
+func (mlc *MockLocalChannel) IsAllCommandsAvailable(ctx context.Context, commandNames []string) (*spec.Response, bool) {
 	return nil, false
 }
 
-func (mlc *MockLocalChannel) IsCommandAvailable(commandName string) bool {
-	return mlc.IsCommandAvailableFunc(commandName)
+func (mlc *MockLocalChannel) IsCommandAvailable(ctx context.Context, commandName string) bool {
+	return mlc.IsCommandAvailableFunc(ctx, commandName)
 }
 
 func (mlc *MockLocalChannel) ProcessExists(pid string) (bool, error) {
@@ -84,12 +88,12 @@ func (mlc *MockLocalChannel) GetPidUser(pid string) (string, error) {
 	return mlc.GetPidUserFunc(pid)
 }
 
-func (mlc *MockLocalChannel) GetPidsByLocalPorts(localPorts []string) ([]string, error) {
-	return mlc.GetPidsByLocalPortsFunc(localPorts)
+func (mlc *MockLocalChannel) GetPidsByLocalPorts(ctx context.Context, localPorts []string) ([]string, error) {
+	return mlc.GetPidsByLocalPortsFunc(ctx, localPorts)
 }
 
-func (mlc *MockLocalChannel) GetPidsByLocalPort(localPort string) ([]string, error) {
-	return mlc.GetPidsByLocalPortFunc(localPort)
+func (mlc *MockLocalChannel) GetPidsByLocalPort(ctx context.Context, localPort string) ([]string, error) {
+	return mlc.GetPidsByLocalPortFunc(ctx, localPort)
 }
 
 func (mlc *MockLocalChannel) Run(ctx context.Context, script, args string) *spec.Response {
@@ -106,10 +110,10 @@ var defaultGetPidsByProcessCmdNameFunc = func(processName string, ctx context.Co
 var defaultGetPidsByProcessNameFunc = func(processName string, ctx context.Context) ([]string, error) {
 	return []string{}, nil
 }
-var defaultGetPsArgsFunc = func() string {
+var defaultGetPsArgsFunc = func(ctx context.Context) string {
 	return "-eo user,pid,ppid,args"
 }
-var defaultIsCommandAvailableFunc = func(commandName string) bool {
+var defaultIsCommandAvailableFunc = func(ctx context.Context, commandName string) bool {
 	return false
 }
 var defaultProcessExistsFunc = func(pid string) (bool, error) {
@@ -118,10 +122,10 @@ var defaultProcessExistsFunc = func(pid string) (bool, error) {
 var defaultGetPidUserFunc = func(pid string) (string, error) {
 	return "admin", nil
 }
-var defaultGetPidsByLocalPortsFunc = func(localPorts []string) ([]string, error) {
+var defaultGetPidsByLocalPortsFunc = func(ctx context.Context, localPorts []string) ([]string, error) {
 	return []string{}, nil
 }
-var defaultGetPidsByLocalPortFunc = func(localPort string) ([]string, error) {
+var defaultGetPidsByLocalPortFunc = func(ctx context.Context, localPort string) ([]string, error) {
 	return []string{}, nil
 }
 var defaultRunFunc = func(ctx context.Context, script, args string) *spec.Response {

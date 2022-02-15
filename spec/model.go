@@ -88,6 +88,9 @@ type ExpActionCommandSpec interface {
 
 	// SetCategories
 	SetCategories(categories []string)
+
+	// process is hang up
+	ProcessHang() bool
 }
 
 type ExpFlagSpec interface {
@@ -175,13 +178,14 @@ func (b *BaseExpModelCommandSpec) SetFlags(flags []ExpFlagSpec) {
 
 // BaseExpActionCommandSpec defines the common struct of the implementation of ExpActionCommandSpec
 type BaseExpActionCommandSpec struct {
-	ActionMatchers   []ExpFlagSpec
-	ActionFlags      []ExpFlagSpec
-	ActionExecutor   Executor
-	ActionLongDesc   string
-	ActionExample    string
-	ActionPrograms   []string
-	ActionCategories []string
+	ActionMatchers    []ExpFlagSpec
+	ActionFlags       []ExpFlagSpec
+	ActionExecutor    Executor
+	ActionLongDesc    string
+	ActionExample     string
+	ActionPrograms    []string
+	ActionCategories  []string
+	ActionProcessHang bool
 }
 
 func (b *BaseExpActionCommandSpec) Matchers() []ExpFlagSpec {
@@ -224,18 +228,23 @@ func (b *BaseExpActionCommandSpec) SetCategories(categories []string) {
 	b.ActionCategories = categories
 }
 
+func (b *BaseExpActionCommandSpec) ProcessHang() bool {
+	return b.ActionProcessHang
+}
+
 // ActionModel for yaml file
 type ActionModel struct {
-	ActionName       string    `yaml:"action"`
-	ActionAliases    []string  `yaml:"aliases,flow,omitempty"`
-	ActionShortDesc  string    `yaml:"shortDesc"`
-	ActionLongDesc   string    `yaml:"longDesc"`
-	ActionMatchers   []ExpFlag `yaml:"matchers,omitempty"`
-	ActionFlags      []ExpFlag `yaml:"flags,omitempty"`
-	ActionExample    string    `yaml:"example"`
-	executor         Executor
-	ActionPrograms   []string `yaml:"programs,omitempty"`
-	ActionCategories []string `yaml:"categories,omitempty"`
+	ActionName        string    `yaml:"action"`
+	ActionAliases     []string  `yaml:"aliases,flow,omitempty"`
+	ActionShortDesc   string    `yaml:"shortDesc"`
+	ActionLongDesc    string    `yaml:"longDesc"`
+	ActionMatchers    []ExpFlag `yaml:"matchers,omitempty"`
+	ActionFlags       []ExpFlag `yaml:"flags,omitempty"`
+	ActionExample     string    `yaml:"example"`
+	executor          Executor
+	ActionPrograms    []string `yaml:"programs,omitempty"`
+	ActionCategories  []string `yaml:"categories,omitempty"`
+	ActionProcessHang bool     `yaml:"actionProcessHang"`
 }
 
 func (am *ActionModel) Programs() []string {
@@ -300,6 +309,10 @@ func (am *ActionModel) Categories() []string {
 
 func (am *ActionModel) SetCategories(categories []string) {
 	am.ActionCategories = categories
+}
+
+func (am *ActionModel) ProcessHang() bool {
+	return am.ActionProcessHang
 }
 
 type ExpPrepareModel struct {
