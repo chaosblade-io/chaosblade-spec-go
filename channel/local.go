@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -37,8 +36,12 @@ type LocalChannel struct {
 }
 
 // NewLocalChannel returns a local channel for invoking the host command
-func NewLocalChannel() OsChannel {
+func NewLocalChannel() spec.Channel {
 	return &LocalChannel{}
+}
+
+func (l *LocalChannel) Name() string  {
+	return "local"
 }
 
 func (l *LocalChannel) Run(ctx context.Context, script, args string) *spec.Response {
@@ -184,18 +187,18 @@ func getExcludeProcesses(ctx context.Context) []string {
 	return excludeProcesses
 }
 
-func (l *LocalChannel) GetPsArgs() string {
+func (l *LocalChannel) GetPsArgs(ctx context.Context) string {
 	var psArgs = "-eo user,pid,ppid,args"
-	if l.isAlpinePlatform() {
+	if l.IsAlpinePlatform(ctx) {
 		psArgs = "-o user,pid,ppid,args"
 	}
 	return psArgs
 }
 
-func (l *LocalChannel) isAlpinePlatform() bool {
+func (l *LocalChannel) IsAlpinePlatform(ctx context.Context) bool {
 	var osVer = ""
 	if util.IsExist("/etc/os-release") {
-		response := l.Run(context.TODO(), "awk", "-F '=' '{if ($1 == \"ID\") {print $2;exit 0}}' /etc/os-release")
+		response := l.Run(ctx, "awk", "-F '=' '{if ($1 == \"ID\") {print $2;exit 0}}' /etc/os-release")
 		if response.Success {
 			osVer = response.Result.(string)
 		}
@@ -206,57 +209,12 @@ func (l *LocalChannel) isAlpinePlatform() bool {
 // check command is available or not
 // now, all commands are: ["rm", "dd" ,"touch", "mkdir",  "echo", "kill", ,"mv","mount", "umount","tc", "head"
 //"grep", "cat", "iptables", "sed", "awk", "tar"]
-func (l *LocalChannel) IsAllCommandsAvailable(commandNames []string) (*spec.Response, bool) {
-	if len(commandNames) == 0 {
-		return nil, true
-	}
-
-	for _, commandName := range commandNames {
-		if l.IsCommandAvailable(commandName) {
-			continue
-		}
-		switch commandName {
-		case "rm":
-			return spec.ResponseFailWithFlags(spec.CommandRmNotFound), false
-		case "dd":
-			return spec.ResponseFailWithFlags(spec.CommandDdNotFound), false
-		case "touch":
-			return spec.ResponseFailWithFlags(spec.CommandTouchNotFound), false
-		case "mkdir":
-			return spec.ResponseFailWithFlags(spec.CommandMkdirNotFound), false
-		case "echo":
-			return spec.ResponseFailWithFlags(spec.CommandEchoNotFound), false
-		case "kill":
-			return spec.ResponseFailWithFlags(spec.CommandKillNotFound), false
-		case "mv":
-			return spec.ResponseFailWithFlags(spec.CommandMvNotFound), false
-		case "mount":
-			return spec.ResponseFailWithFlags(spec.CommandMountNotFound), false
-		case "umount":
-			return spec.ResponseFailWithFlags(spec.CommandUmountNotFound), false
-		case "tc":
-			return spec.ResponseFailWithFlags(spec.CommandTcNotFound), false
-		case "head":
-			return spec.ResponseFailWithFlags(spec.CommandHeadNotFound), false
-		case "grep":
-			return spec.ResponseFailWithFlags(spec.CommandGrepNotFound), false
-		case "cat":
-			return spec.ResponseFailWithFlags(spec.CommandCatNotFound), false
-		case "iptables":
-			return spec.ResponseFailWithFlags(spec.CommandIptablesNotFound), false
-		case "sed":
-			return spec.ResponseFailWithFlags(spec.CommandSedNotFound), false
-		case "awk":
-			return spec.ResponseFailWithFlags(spec.CommandAwkNotFound), false
-		case "tar":
-			return spec.ResponseFailWithFlags(spec.CommandTarNotFound), false
-		}
-	}
-	return nil, true
+func (l *LocalChannel) IsAllCommandsAvailable(ctx context.Context, commandNames []string) (*spec.Response, bool) {
+	return IsAllCommandsAvailable(ctx, l ,commandNames)
 }
 
-func (l *LocalChannel) IsCommandAvailable(commandName string) bool {
-	response := l.Run(context.TODO(), "command", fmt.Sprintf("-v %s", commandName))
+func (l *LocalChannel) IsCommandAvailable(ctx context.Context, commandName string) bool {
+	response := l.Run(ctx, "command", fmt.Sprintf("-v %s", commandName))
 	return response.Success
 }
 
@@ -280,13 +238,13 @@ func (l *LocalChannel) GetPidUser(pid string) (string, error) {
 	return process.Username()
 }
 
-func (l *LocalChannel) GetPidsByLocalPorts(localPorts []string) ([]string, error) {
+func (l *LocalChannel) GetPidsByLocalPorts(ctx context.Context, localPorts []string) ([]string, error) {
 	if localPorts == nil || len(localPorts) == 0 {
 		return nil, fmt.Errorf("the local port parameter is empty")
 	}
 	var result = make([]string, 0)
 	for _, port := range localPorts {
-		pids, err := l.GetPidsByLocalPort(port)
+		pids, err := l.GetPidsByLocalPort(ctx, port)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get pid by %s, %v", port, err)
 		}
@@ -298,77 +256,8 @@ func (l *LocalChannel) GetPidsByLocalPorts(localPorts []string) ([]string, error
 	return result, nil
 }
 
-func (l *LocalChannel) GetPidsByLocalPort(localPort string) ([]string, error) {
-	available := l.IsCommandAvailable("ss")
-	if !available {
-		return nil, fmt.Errorf("ss command not found, can't get pid by port")
-	}
-
-	pids := []string{}
-
-	//on centos7, ss outupt pid with 'pid='
-	//$ss -lpn 'sport = :80'
-	//Netid State      Recv-Q Send-Q   Local Address:Port   Peer Address:Port
-	//tcp   LISTEN     0      128       *:80                 *:* users:(("tengine",pid=237768,fd=6),("tengine",pid=237767,fd=6))
-
-	//on centos6, ss output pid without 'pid='
-	//$ss -lpn 'sport = :80'
-	//Netid State      Recv-Q Send-Q   Local Address:Port   Peer Address:Port
-	//tcp   LISTEN     0      128       *:80                 *:* users:(("tengine",237768,fd=6),("tengine",237767,fd=6))
-	response := l.Run(context.TODO(), "ss", fmt.Sprintf("-pln sport = :%s", localPort))
-	if !response.Success {
-		return pids, fmt.Errorf(response.Err)
-	}
-	if util.IsNil(response.Result) {
-		return pids, nil
-	}
-	result := response.Result.(string)
-	ssMsg := strings.TrimSpace(result)
-	if ssMsg == "" {
-		return pids, nil
-	}
-	sockets := strings.Split(ssMsg, "\n")
-	logrus.Infof("sockets for %s, %v", localPort, sockets)
-	for idx, s := range sockets {
-		if idx == 0 {
-			continue
-		}
-		fields := strings.Fields(s)
-		// centos7: users:(("tengine",pid=237768,fd=6),("tengine",pid=237767,fd=6))
-		// centos6: users:(("tengine",237768,fd=6),("tengine",237767,fd=6))
-		lastField := fields[len(fields)-1]
-		logrus.Infof("GetPidsByLocalPort: lastField: %v", lastField)
-		pidExp := regexp.MustCompile(`pid=(\d+)|,(\d+),`)
-		// extract all the pids that conforms to pidExp
-		matchedPidArrays := pidExp.FindAllStringSubmatch(lastField, -1)
-		if matchedPidArrays == nil || len(matchedPidArrays) == 0 {
-			return pids, nil
-		}
-
-		for _, matchedPidArray := range matchedPidArrays {
-
-			var pid string
-
-			// centos7: matchedPidArray is [pid=29863 29863 ], matchedPidArray[len(matchedPidArray)-1] is whitespace
-
-			pid = strings.TrimSpace(matchedPidArray[len(matchedPidArray)-1])
-
-			if pid != "" {
-				pids = append(pids, pid)
-				continue
-			}
-
-			// centos6: matchedPidArray is [,237768,  237768] matchedPidArray[len(matchedPidArray)-1] is pid
-			pid = strings.TrimSpace(matchedPidArray[len(matchedPidArray)-2])
-			if pid != "" {
-				pids = append(pids, pid)
-				continue
-			}
-
-		}
-	}
-	logrus.Infof("GetPidsByLocalPort: pids: %v", pids)
-	return pids, nil
+func (l *LocalChannel) GetPidsByLocalPort(ctx context.Context, localPort string) ([]string, error) {
+	return GetPidsByLocalPort(ctx, l, localPort)
 }
 
 // execScript invokes exec.CommandContext
