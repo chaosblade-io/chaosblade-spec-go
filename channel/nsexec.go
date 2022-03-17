@@ -1,6 +1,7 @@
 package channel
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
@@ -75,22 +76,26 @@ func (l *NSExecChannel) Run(ctx context.Context, script, args string) *spec.Resp
 
 	cmd := exec.CommandContext(timeoutCtx, path.Join(util.GetProgramPath(), spec.NSExecBin), append(split, args)...)
 
-	output, err := cmd.CombinedOutput()
-	outMsg := string(output)
-	logrus.Debugf("Command Result, output: %v, err: %v", outMsg, err)
+	var outMsg bytes.Buffer
+	var errMsg bytes.Buffer
+	cmd.Stdout = &outMsg
+	cmd.Stderr = &errMsg
+	err := cmd.Run()
+
+	logrus.Debugf("Command Result, output: %s, errMsg: %s, err: %v", outMsg.String(), errMsg.String(), err)
 
 	// TODO shell-init错误
-	if strings.TrimSpace(outMsg) != "" {
-		resp := spec.Decode(outMsg, nil)
+	if strings.TrimSpace(outMsg.String()) != "" {
+		resp := spec.Decode(outMsg.String(), nil)
 		if resp.Code != spec.ResultUnmarshalFailed.Code {
 			return resp
 		}
 	}
-	if err == nil {
-		return spec.ReturnSuccess(outMsg)
+	if err == nil && errMsg.Len() == 0 {
+		return spec.ReturnSuccess(outMsg.String())
 	}
-	outMsg += " " + err.Error()
-	return spec.ResponseFailWithFlags(spec.OsCmdExecFailed, cmd, outMsg)
+
+	return spec.ResponseFailWithFlags(spec.OsCmdExecFailed, cmd, errMsg.String())
 }
 
 func (l *NSExecChannel) GetPidsByProcessCmdName(processName string, ctx context.Context) ([]string, error) {
@@ -167,12 +172,17 @@ func (l *NSExecChannel) GetPidsByProcessName(processName string, ctx context.Con
 }
 
 func (l *NSExecChannel) IsAllCommandsAvailable(ctx context.Context, commandNames []string) (*spec.Response, bool) {
-	return IsAllCommandsAvailable(ctx, l ,commandNames)
+	return IsAllCommandsAvailable(ctx, l, commandNames)
 }
 
 func (l *NSExecChannel) IsCommandAvailable(ctx context.Context, commandName string) bool {
 	response := l.Run(ctx, "command", fmt.Sprintf("-v %s", commandName))
-	return response.Success
+	if response.Success {
+		if response.Result != nil && strings.Contains(response.Result.(string), commandName) {
+			return true
+		}
+	}
+	return false
 }
 
 func (l *NSExecChannel) GetPsArgs(ctx context.Context) string {
