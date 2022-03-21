@@ -3,7 +3,6 @@ package util
 import (
 	"archive/tar"
 	"io"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,7 +10,7 @@ import (
 
 func ArchiveTar(file string, writer *tar.Writer) error {
 
-	return filepath.Walk(file, func(path string, fileInfo fs.FileInfo, err error) error {
+	return filepath.Walk(file, func(path string, fileInfo os.FileInfo, err error) error {
 		if fileInfo == nil {
 			return err
 		}
@@ -30,7 +29,7 @@ func ArchiveTar(file string, writer *tar.Writer) error {
 			os.Mkdir(strings.TrimPrefix(path, fileInfo.Name()), os.ModeDir)
 			return ArchiveTar(path, writer)
 		}
-		return func(originFile, path string, fileInfo fs.FileInfo, writer *tar.Writer) error {
+		return func(originFile, path string, fileInfo os.FileInfo, writer *tar.Writer) error {
 			if file, err := os.Open(path); err != nil {
 				return err
 			} else {
