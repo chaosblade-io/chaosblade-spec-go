@@ -22,8 +22,8 @@ import (
 
 // Channel is an interface for command invocation
 type Channel interface {
-	// Run script with args and returns response that wraps the result
-	Run(ctx context.Context, script, args string) *Response
+	// Run command with args and returns response that wraps the result
+	Run(ctx context.Context, command, args string) *Response
 
 	// GetScriptPath return the script path
 	GetScriptPath() string

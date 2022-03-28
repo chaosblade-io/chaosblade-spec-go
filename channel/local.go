@@ -41,8 +41,8 @@ func NewLocalChannel() OsChannel {
 	return &LocalChannel{}
 }
 
-func (l *LocalChannel) Run(ctx context.Context, script, args string) *spec.Response {
-	return execScript(ctx, script, args)
+func (l *LocalChannel) Run(ctx context.Context, command, args string) *spec.Response {
+	return execCommand(ctx, command, args)
 }
 
 func (l *LocalChannel) GetScriptPath() string {
@@ -126,7 +126,7 @@ func (l *LocalChannel) GetPidsByProcessName(processName string, ctx context.Cont
 				logrus.WithField("processCommand", processCommandName).WithError(err).Debugln("get process command err")
 				continue
 			}
-			if !strings.Contains(name, processCommandName) {
+			if processCommandName != name {
 				continue
 			}
 		}
@@ -371,22 +371,27 @@ func (l *LocalChannel) GetPidsByLocalPort(localPort string) ([]string, error) {
 	return pids, nil
 }
 
-// execScript invokes exec.CommandContext
-func execScript(ctx context.Context, script, args string) *spec.Response {
-	isBladeCommand := isBladeCommand(script)
-	if isBladeCommand && !util.IsExist(script) {
+// execCommand invokes exec.CommandContext
+func execCommand(ctx context.Context, command, args string) *spec.Response {
+	isBladeCommand := isBladeCommand(command)
+	if isBladeCommand && !util.IsExist(command) {
 		// TODO nohup invoking
-		return spec.ResponseFailWithFlags(spec.ChaosbladeFileNotFound, script)
+		return spec.ResponseFailWithFlags(spec.ChaosbladeFileNotFound, command)
 	}
 	newCtx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
 	if ctx == context.Background() {
 		ctx = newCtx
 	}
-	script = strings.Replace(script, " ", `\ `, -1)
-	logrus.Debugf("Command: %s %s", script, args)
-	// TODO /bin/sh 的问题
-	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", script+" "+args)
+	command = strings.Replace(command, " ", `\ `, -1)
+	var cmd *exec.Cmd
+	if command == "" {
+		logrus.Debugf("Command: /bin/sh -c %s.(Process command isn't specified, so use default /bin/sh)", args)
+		cmd = exec.CommandContext(ctx, "/bin/sh", "-c", args)
+	} else {
+		logrus.Debugf("Command: %s %s", command, args)
+		cmd = exec.CommandContext(ctx, command, args)
+	}
 	output, err := cmd.CombinedOutput()
 	outMsg := string(output)
 	logrus.Debugf("Command Result, output: %v, err: %v", outMsg, err)
