@@ -19,17 +19,16 @@ package channel
 import (
 	"context"
 	"fmt"
+	"github.com/chaosblade-io/chaosblade-spec-go/log"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/shirou/gopsutil/process"
-	"github.com/sirupsen/logrus"
-
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
 	"github.com/chaosblade-io/chaosblade-spec-go/util"
+	"github.com/shirou/gopsutil/process"
 )
 
 type LocalChannel struct {
@@ -40,7 +39,7 @@ func NewLocalChannel() spec.Channel {
 	return &LocalChannel{}
 }
 
-func (l *LocalChannel) Name() string  {
+func (l *LocalChannel) Name() string {
 	return "local"
 }
 
@@ -67,7 +66,7 @@ func (l *LocalChannel) GetPidsByProcessCmdName(processName string, ctx context.C
 	for _, p := range processes {
 		name, err := p.Name()
 		if err != nil {
-			logrus.WithField("pid", p.Pid).WithError(err).Debugln("get process name error")
+			log.Debugf(ctx, "get process name error, pid: %s, err: %v", p.Pid, err)
 			continue
 		}
 		if processName != name {
@@ -78,11 +77,7 @@ func (l *LocalChannel) GetPidsByProcessCmdName(processName string, ctx context.C
 		}
 		cmdline, _ := p.Cmdline()
 		containsExcludeProcess := false
-		logrus.WithFields(logrus.Fields{
-			"name":        name,
-			"cmdline":     cmdline,
-			"processName": processName,
-		}).Debugln("process info")
+		log.Debugf(ctx, "process info, name: %s, cmdline: %s, processName: %s", name, cmdline, processName)
 		for _, ep := range excludeProcesses {
 			if strings.Contains(cmdline, strings.TrimSpace(ep)) {
 				containsExcludeProcess = true
@@ -126,7 +121,7 @@ func (l *LocalChannel) GetPidsByProcessName(processName string, ctx context.Cont
 		if processCommandName != "" {
 			name, err := p.Name()
 			if err != nil {
-				logrus.WithField("processCommand", processCommandName).WithError(err).Debugln("get process command err")
+				log.Debugf(ctx, "get process command error, processCommand: %s, err: %v, ", processCommandName, err)
 				continue
 			}
 			if !strings.Contains(name, processCommandName) {
@@ -135,19 +130,15 @@ func (l *LocalChannel) GetPidsByProcessName(processName string, ctx context.Cont
 		}
 		cmdline, err := p.Cmdline()
 		if err != nil {
-			logrus.WithField("pid", p.Pid).WithError(err).Debugln("get command line err")
+			log.Debugf(ctx, "get command line error, pid: %s, err: %v", p.Pid, err)
 			continue
 		}
 		if !strings.Contains(cmdline, processName) {
 			continue
 		}
-		logrus.WithFields(logrus.Fields{
-			"cmdline":                   cmdline,
-			"processName":               processName,
-			"processCommand":            processCommandName,
-			"otherConditionProcessName": otherConditionProcessName,
-			"excludeProcesses":          excludeProcesses,
-		}).Debugln("process info")
+		log.Debugf(ctx, "process info, cmdline: %s, processName: %s, processCommand: %s, otherConditionProcessName: %s, excludeProcesses: %s",
+			cmdline, processName, processCommandName, otherConditionProcessName, excludeProcesses)
+
 		if otherConditionProcessName != "" && !strings.Contains(cmdline, otherConditionProcessName) {
 			continue
 		}
@@ -210,7 +201,7 @@ func (l *LocalChannel) IsAlpinePlatform(ctx context.Context) bool {
 // now, all commands are: ["rm", "dd" ,"touch", "mkdir",  "echo", "kill", ,"mv","mount", "umount","tc", "head"
 //"grep", "cat", "iptables", "sed", "awk", "tar"]
 func (l *LocalChannel) IsAllCommandsAvailable(ctx context.Context, commandNames []string) (*spec.Response, bool) {
-	return IsAllCommandsAvailable(ctx, l ,commandNames)
+	return IsAllCommandsAvailable(ctx, l, commandNames)
 }
 
 func (l *LocalChannel) IsCommandAvailable(ctx context.Context, commandName string) bool {
@@ -248,7 +239,7 @@ func (l *LocalChannel) GetPidsByLocalPorts(ctx context.Context, localPorts []str
 		if err != nil {
 			return nil, fmt.Errorf("failed to get pid by %s, %v", port, err)
 		}
-		logrus.Infof("get pids by %s port returns %v", port, pids)
+		log.Infof(ctx, "get pids by %s port returns %v", port, pids)
 		if pids != nil && len(pids) > 0 {
 			result = append(result, pids...)
 		}
@@ -273,12 +264,12 @@ func execScript(ctx context.Context, script, args string) *spec.Response {
 		ctx = newCtx
 	}
 	script = strings.Replace(script, " ", `\ `, -1)
-	logrus.Debugf("Command: %s %s", script, args)
+	log.Debugf(ctx, "Command: %s %s", script, args)
 	// TODO /bin/sh 的问题
 	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", script+" "+args)
 	output, err := cmd.CombinedOutput()
 	outMsg := string(output)
-	logrus.Debugf("Command Result, output: %v, err: %v", outMsg, err)
+	log.Debugf(ctx, "Command Result, output: %v, err: %v", outMsg, err)
 	// TODO shell-init错误
 	if strings.TrimSpace(outMsg) != "" {
 		resp := spec.Decode(outMsg, nil)
