@@ -45,7 +45,7 @@ func AddDebugFlag() {
 }
 
 func AddLogPathFlag() {
-	flag.StringVar(&LogPath, "log-path", GetProgramPath(), "the directory path to save chaosblade.log.")
+	flag.StringVar(&LogPath, "log-path", GetProgramPath(), "the directory path to save chaosblade.logrus.")
 }
 
 func AddLogLevelFlag() {

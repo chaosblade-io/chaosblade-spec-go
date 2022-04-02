@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/chaosblade-io/chaosblade-spec-go/log"
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
 	"github.com/chaosblade-io/chaosblade-spec-go/util"
-	"github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
 	"path"
@@ -70,7 +70,7 @@ func (l *NSExecChannel) Run(ctx context.Context, script, args string) *spec.Resp
 
 	ns_script = fmt.Sprintf("%s -- /bin/sh -c", ns_script)
 
-	logrus.Debugf(`Command: %s %s "%s"`, path.Join(util.GetProgramPath(), spec.NSExecBin), ns_script, args)
+	log.Debugf(ctx,`Command: %s %s "%s"`, path.Join(util.GetProgramPath(), spec.NSExecBin), ns_script, args)
 
 	split := strings.Split(ns_script, " ")
 
@@ -82,7 +82,7 @@ func (l *NSExecChannel) Run(ctx context.Context, script, args string) *spec.Resp
 	cmd.Stderr = &errMsg
 	err := cmd.Run()
 
-	logrus.Debugf("Command Result, output: %s, errMsg: %s, err: %v", outMsg.String(), errMsg.String(), err)
+	log.Debugf(ctx,"Command Result, output: %s, errMsg: %s, err: %v", outMsg.String(), errMsg.String(), err)
 
 	// TODO shell-init错误
 	if strings.TrimSpace(outMsg.String()) != "" {

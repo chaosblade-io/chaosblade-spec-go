@@ -22,8 +22,9 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/chaosblade-io/chaosblade-spec-go/log"
+	"github.com/sirupsen/logrus"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"net"
 	"net/http"
@@ -36,7 +37,6 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/sirupsen/logrus"
 )
 
 var proPath string
@@ -55,14 +55,14 @@ func GetProgramPath() string {
 	}
 	dir, err := exec.LookPath(os.Args[0])
 	if err != nil {
-		log.Fatal("cannot get the process path")
+		logrus.Fatal("cannot get the process path")
 	}
 	if p, err := os.Readlink(dir); err == nil {
 		dir = p
 	}
 	proPath, err = filepath.Abs(filepath.Dir(dir))
 	if err != nil {
-		log.Fatal("cannot get the full process path")
+		logrus.Fatal("cannot get the full process path")
 	}
 	return proPath
 }
@@ -165,8 +165,8 @@ func GetSpecifyingUserHome(username string) string {
 }
 
 // Curl url
-func Curl(url string) (string, error, int) {
-	logrus.Infoln(url)
+func Curl(ctx context.Context, url string) (string, error, int) {
+	log.Infof(ctx, url)
 	trans := http.Transport{
 		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
 			return net.DialTimeout(network, addr, 10*time.Second)

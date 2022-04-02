@@ -19,9 +19,8 @@ package spec
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
-
 	"github.com/sirupsen/logrus"
+	"strings"
 )
 
 type CodeType struct {

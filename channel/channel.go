@@ -19,9 +19,9 @@ package channel
 import (
 	"context"
 	"fmt"
+	"github.com/chaosblade-io/chaosblade-spec-go/log"
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
 	"github.com/chaosblade-io/chaosblade-spec-go/util"
-	"github.com/sirupsen/logrus"
 	"regexp"
 	"strings"
 )
@@ -62,7 +62,7 @@ func GetPidsByLocalPort(ctx context.Context, channel spec.Channel, localPort str
 		return pids, nil
 	}
 	sockets := strings.Split(ssMsg, "\n")
-	logrus.Infof("sockets for %s, %v", localPort, sockets)
+	log.Infof(ctx, "sockets for %s, %v", localPort, sockets)
 	for idx, s := range sockets {
 		if idx == 0 {
 			continue
@@ -71,7 +71,7 @@ func GetPidsByLocalPort(ctx context.Context, channel spec.Channel, localPort str
 		// centos7: users:(("tengine",pid=237768,fd=6),("tengine",pid=237767,fd=6))
 		// centos6: users:(("tengine",237768,fd=6),("tengine",237767,fd=6))
 		lastField := fields[len(fields)-1]
-		logrus.Infof("GetPidsByLocalPort: lastField: %v", lastField)
+		log.Infof(ctx,"GetPidsByLocalPort: lastField: %v", lastField)
 		pidExp := regexp.MustCompile(`pid=(\d+)|,(\d+),`)
 		// extract all the pids that conforms to pidExp
 		matchedPidArrays := pidExp.FindAllStringSubmatch(lastField, -1)
@@ -101,7 +101,7 @@ func GetPidsByLocalPort(ctx context.Context, channel spec.Channel, localPort str
 
 		}
 	}
-	logrus.Infof("GetPidsByLocalPort: pids: %v", pids)
+	log.Infof(ctx, "GetPidsByLocalPort: pids: %v", pids)
 	return pids, nil
 }
 
