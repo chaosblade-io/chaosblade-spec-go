@@ -263,7 +263,6 @@ func execScript(ctx context.Context, script, args string) *spec.Response {
 	if ctx == context.Background() {
 		ctx = newCtx
 	}
-	script = strings.Replace(script, " ", `\ `, -1)
 	log.Debugf(ctx, "Command: %s %s", script, args)
 	// TODO /bin/sh 的问题
 	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", script+" "+args)
