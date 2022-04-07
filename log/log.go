@@ -53,7 +53,7 @@ func Debugf(ctx context.Context, format string, a ...interface{}) {
 	logrus.WithFields(logrus.Fields{
 		"uid":      uid,
 		"location": GetRunFuncLocation(),
-	}).Infof("%s", fmt.Sprintf(format, a...))
+	}).Debugf("%s", fmt.Sprintf(format, a...))
 }
 
 func Tracef(ctx context.Context, format string, a ...interface{}) {
