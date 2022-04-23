@@ -1,7 +1,6 @@
 package channel
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"github.com/chaosblade-io/chaosblade-spec-go/log"
@@ -70,32 +69,31 @@ func (l *NSExecChannel) Run(ctx context.Context, script, args string) *spec.Resp
 
 	ns_script = fmt.Sprintf("%s -- /bin/sh -c", ns_script)
 
-	log.Debugf(ctx,`Command: %s %s "%s"`, path.Join(util.GetProgramPath(), spec.NSExecBin), ns_script, args)
+	programPath := util.GetProgramPath()
+	if path.Base(programPath) != spec.BinPath {
+		programPath = path.Join(programPath, spec.BinPath)
+	}
+	bin := path.Join(programPath, spec.NSExecBin)
+	log.Debugf(ctx,`Command: %s %s "%s"`, bin, ns_script, args)
 
 	split := strings.Split(ns_script, " ")
 
-	cmd := exec.CommandContext(timeoutCtx, path.Join(util.GetProgramPath(), spec.NSExecBin), append(split, args)...)
-
-	var outMsg bytes.Buffer
-	var errMsg bytes.Buffer
-	cmd.Stdout = &outMsg
-	cmd.Stderr = &errMsg
-	err := cmd.Run()
-
-	log.Debugf(ctx,"Command Result, output: %s, errMsg: %s, err: %v", outMsg.String(), errMsg.String(), err)
-
+	cmd := exec.CommandContext(timeoutCtx, bin, append(split, args)...)
+	output, err := cmd.CombinedOutput()
+	outMsg := string(output)
+	log.Debugf(ctx, "Command Result, output: %v, err: %v", outMsg, err)
 	// TODO shell-init错误
-	if strings.TrimSpace(outMsg.String()) != "" {
-		resp := spec.Decode(outMsg.String(), nil)
+	if strings.TrimSpace(outMsg) != "" {
+		resp := spec.Decode(outMsg, nil)
 		if resp.Code != spec.ResultUnmarshalFailed.Code {
 			return resp
 		}
 	}
-	if err == nil && errMsg.Len() == 0 {
-		return spec.ReturnSuccess(outMsg.String())
+	if err == nil {
+		return spec.ReturnSuccess(outMsg)
 	}
-
-	return spec.ResponseFailWithFlags(spec.OsCmdExecFailed, cmd, errMsg.String())
+	outMsg += " " + err.Error()
+	return spec.ResponseFailWithFlags(spec.OsCmdExecFailed, cmd, outMsg)
 }
 
 func (l *NSExecChannel) GetPidsByProcessCmdName(processName string, ctx context.Context) ([]string, error) {
