@@ -100,48 +100,63 @@ func (l *LocalChannel) GetPidsByProcessName(processName string, ctx context.Cont
 	if processName == "" {
 		return []string{}, fmt.Errorf("process keyword is blank")
 	}
+
 	processes, err := process.Processes()
 	if err != nil {
 		return []string{}, err
 	}
-	otherConditionProcessValue := ctx.Value(ProcessKey)
-	otherConditionProcessName := ""
-	if otherConditionProcessValue != nil {
-		otherConditionProcessName = otherConditionProcessValue.(string)
-	}
+
 	processCommandValue := ctx.Value(ProcessCommandKey)
 	processCommandName := ""
 	if processCommandValue != nil {
 		processCommandName = processCommandValue.(string)
 	}
+
+	otherConditionProcessValue := ctx.Value(ProcessKey)
+	otherConditionProcessName := ""
+	if otherConditionProcessValue != nil {
+		otherConditionProcessName = otherConditionProcessValue.(string)
+	}
+
+	suidValue := ctx.Value(spec.Uid)
+	suidName := ""
+	if suidValue != nil {
+		suidName = suidValue.(string)
+	}
+
 	currPid := os.Getpid()
 	excludeProcesses := getExcludeProcesses(ctx)
 	pids := make([]string, 0)
+
+	log.Debugf(ctx, "processName: %s, processCommand: %s, otherConditionProcess: %s, suid: %s, excludeProcesses: %s",
+		processName, processCommandName, otherConditionProcessName, suidName, excludeProcesses)
+
 	for _, p := range processes {
+		name, err := p.Name()
+		if err != nil {
+			log.Debugf(ctx, "get process command error, processCommand: %s, err: %v, ", processCommandName, err)
+			continue
+		}
+		if name != processName {
+			continue
+		}
 		if processCommandName != "" {
-			name, err := p.Name()
-			if err != nil {
-				log.Debugf(ctx, "get process command error, processCommand: %s, err: %v, ", processCommandName, err)
-				continue
-			}
 			if !strings.Contains(name, processCommandName) {
 				continue
 			}
 		}
+
 		cmdline, err := p.Cmdline()
 		if err != nil {
 			log.Debugf(ctx, "get command line error, pid: %s, err: %v", p.Pid, err)
 			continue
 		}
-		if !strings.Contains(cmdline, processName) {
+		if (otherConditionProcessName != "" && !strings.Contains(cmdline, otherConditionProcessName)) ||
+			(suidName != " " && !strings.Contains(cmdline, suidName))  {
 			continue
 		}
-		log.Debugf(ctx, "process info, cmdline: %s, processName: %s, processCommand: %s, otherConditionProcessName: %s, excludeProcesses: %s",
-			cmdline, processName, processCommandName, otherConditionProcessName, excludeProcesses)
+		log.Debugf(ctx, "process info, cmdline: %s", cmdline)
 
-		if otherConditionProcessName != "" && !strings.Contains(cmdline, otherConditionProcessName) {
-			continue
-		}
 		containsExcludeProcess := false
 		for _, ep := range excludeProcesses {
 			if strings.Contains(cmdline, ep) {
@@ -152,10 +167,11 @@ func (l *LocalChannel) GetPidsByProcessName(processName string, ctx context.Cont
 		if containsExcludeProcess {
 			continue
 		}
+		
 		if p.Pid == int32(currPid) {
 			continue
 		}
-		pids = append(pids, fmt.Sprintf("%d", p.Pid))
+		pids = append(pids, strconv.FormatInt(int64(p.Pid), 10))
 	}
 	return pids, nil
 }
