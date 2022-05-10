@@ -6,6 +6,7 @@ const (
 	ChaosOsBin        = "chaos_os"
 	Destroy           = "destroy"
 	Create            = "create"
+	Verify            = "verify"
 	True              = "true"
 	False             = "false"
 	BinPath           = "bin"
