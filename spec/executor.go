@@ -23,7 +23,8 @@ import (
 )
 
 const (
-	DestroyKey = "suid"
+	DestroyKey = "destroy"
+	VerifyKey  = "verify"
 )
 
 // ExpModel is the experiment data object
@@ -46,7 +47,7 @@ type ExpModel struct {
 	// Categories
 	ActionCategories []string `json:"categories,omitempty"`
 
-	ActionProcessHang bool     `yaml:"actionProcessHang"`
+	ActionProcessHang bool `yaml:"actionProcessHang"`
 }
 
 // ExpExecutor defines the ExpExecutor interface
@@ -78,9 +79,22 @@ func SetDestroyFlag(ctx context.Context, suid string) context.Context {
 	return context.WithValue(ctx, DestroyKey, suid)
 }
 
+func SetVerifyFlag(ctx context.Context, suid string) context.Context {
+	return context.WithValue(ctx, VerifyKey, suid)
+}
+
 // IsDestroy command
 func IsDestroy(ctx context.Context) (string, bool) {
 	suid := ctx.Value(DestroyKey)
+	if suid == nil {
+		return "", false
+	}
+	return suid.(string), true
+}
+
+// IsVerify command
+func IsVerify(ctx context.Context) (string, bool) {
+	suid := ctx.Value(VerifyKey)
 	if suid == nil {
 		return "", false
 	}

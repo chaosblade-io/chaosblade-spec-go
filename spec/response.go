@@ -117,6 +117,10 @@ var (
 	SystemdNotFound                   = CodeType{66001, "`%s`: systemd not found, err: %v"}
 	DatabaseError                     = CodeType{67001, "`%s`: failed to execute, err: %v"}
 	DataNotFound                      = CodeType{67002, "`%s` record not found, if it's k8s experiment, please add --target k8s flag to retry"}
+	PingSelfVerifyFailed              = CodeType{68001, "`%s` experiment self-verify by ping failed, expected number is %s, actual number is %s"}
+	DnsSelfVerifyFailed               = CodeType{68002, "dns experiment self-verify failed, --domain `%s` --ip `%s`"}
+	OccupySelfVerifyFailed            = CodeType{68003, "occupy experiment self-verify failed, --port `%s`"}
+	TcpClientInitFailed               = CodeType{68004, "tcp client init failed, err %v"}
 )
 
 func (c CodeType) Sprintf(values ...interface{}) string {
