@@ -1,3 +1,6 @@
+//go:build windows
+// +build windows
+
 /*
  * Copyright 1999-2019 Alibaba Group Holding Ltd.
  *
@@ -66,7 +69,7 @@ func (l *LocalChannel) GetPidsByProcessCmdName(processName string, ctx context.C
 	for _, p := range processes {
 		name, err := p.Name()
 		if err != nil {
-			log.Debugf(ctx, "get process name error, pid: %s, err: %v", p.Pid, err)
+			log.Debugf(ctx, "get process name error, pid: %d, err: %v", p.Pid, err)
 			continue
 		}
 		if processName != name {
@@ -130,7 +133,7 @@ func (l *LocalChannel) GetPidsByProcessName(processName string, ctx context.Cont
 		}
 		cmdline, err := p.Cmdline()
 		if err != nil {
-			log.Debugf(ctx, "get command line error, pid: %s, err: %v", p.Pid, err)
+			log.Debugf(ctx, "get command line error, pid: %d, err: %v", p.Pid, err)
 			continue
 		}
 		if !strings.Contains(cmdline, processName) {
@@ -264,12 +267,10 @@ func execScript(ctx context.Context, script, args string) *spec.Response {
 		ctx = newCtx
 	}
 	log.Debugf(ctx, "Command: %s %s", script, args)
-	// TODO /bin/sh 的问题
-	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", script+" "+args)
+	cmd := exec.CommandContext(ctx, "cmd", "/C", script+` `+args)
 	output, err := cmd.CombinedOutput()
 	outMsg := string(output)
 	log.Debugf(ctx, "Command Result, output: %v, err: %v", outMsg, err)
-	// TODO shell-init错误
 	if strings.TrimSpace(outMsg) != "" {
 		resp := spec.Decode(outMsg, nil)
 		if resp.Code != spec.ResultUnmarshalFailed.Code {
