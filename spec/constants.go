@@ -5,6 +5,7 @@ const (
 	NSExecBin          = "nsexec"
 	ChaosOsBin         = "chaos_os"
 	ChaosMiddlewareBin = "chaos_middleware"
+	ChaosCloudBin      = "chaos_cloud"
 	Destroy            = "destroy"
 	Create             = "create"
 	True               = "true"
