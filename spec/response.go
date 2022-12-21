@@ -75,6 +75,7 @@ var (
 	CommandTarNotFound                = CodeType{52018, "`tar`: command not found"}
 	CommandSystemctlNotFound          = CodeType{52019, "`systemctl`: command not found"}
 	CommandNohupNotFound              = CodeType{52020, "`nohup`: command not found"}
+	CommandShutdownNotFound           = CodeType{52021, "`shutdown: command not found`"}
 	ChaosbladeServerStarted           = CodeType{53000, "the chaosblade has been started. If you want to stop it, you can execute blade server stop command"}
 	UnexpectedStatus                  = CodeType{54000, "unexpected status, expected status: `%s`, but the real status: `%s`, please wait!"}
 	DockerExecNotFound                = CodeType{55000, "`%s`: the docker exec not found"}
