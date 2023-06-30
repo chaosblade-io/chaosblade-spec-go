@@ -15,4 +15,8 @@ const (
 	DefaultCGroupPath  = "/sys/fs/cgroup/"
 	Uid                = "uid"
 	YamlPathEnv        = "YAML_PATH"
+
+	OS_WINDOWS = "windows"
+	OS_LINUX   = "linux"
+	OS_DARWIN  = "darwin"
 )
