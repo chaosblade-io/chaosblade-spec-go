@@ -14,4 +14,5 @@ const (
 	ExperimentId       = "experiment"
 	DefaultCGroupPath  = "/sys/fs/cgroup/"
 	Uid                = "uid"
+	YamlPathEnv        = "YAML_PATH"
 )
