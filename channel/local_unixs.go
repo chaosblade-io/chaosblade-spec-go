@@ -29,7 +29,6 @@ import (
 	"time"
 
 	"github.com/chaosblade-io/chaosblade-spec-go/log"
-
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
 	"github.com/chaosblade-io/chaosblade-spec-go/util"
 	"github.com/shirou/gopsutil/process"
