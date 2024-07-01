@@ -22,13 +22,13 @@ package channel
 import (
 	"context"
 	"fmt"
-	"github.com/chaosblade-io/chaosblade-spec-go/log"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/chaosblade-io/chaosblade-spec-go/log"
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
 	"github.com/chaosblade-io/chaosblade-spec-go/util"
 	"github.com/shirou/gopsutil/process"
@@ -69,7 +69,7 @@ func (l *LocalChannel) GetPidsByProcessCmdName(processName string, ctx context.C
 	for _, p := range processes {
 		name, err := p.Name()
 		if err != nil {
-			log.Debugf(ctx, "get process name error, pid: %s, err: %v", p.Pid, err)
+			log.Debugf(ctx, "get process name error, pid: %v, err: %v", p.Pid, err)
 			continue
 		}
 		if processName != name {
@@ -133,7 +133,7 @@ func (l *LocalChannel) GetPidsByProcessName(processName string, ctx context.Cont
 		}
 		cmdline, err := p.Cmdline()
 		if err != nil {
-			log.Debugf(ctx, "get command line error, pid: %s, err: %v", p.Pid, err)
+			log.Debugf(ctx, "get command line error, pid: %v, err: %v", p.Pid, err)
 			continue
 		}
 		if !strings.Contains(cmdline, processName) {
@@ -233,7 +233,7 @@ func (l *LocalChannel) GetPidUser(pid string) (string, error) {
 }
 
 func (l *LocalChannel) GetPidsByLocalPorts(ctx context.Context, localPorts []string) ([]string, error) {
-	if localPorts == nil || len(localPorts) == 0 {
+	if len(localPorts) == 0 {
 		return nil, fmt.Errorf("the local port parameter is empty")
 	}
 	var result = make([]string, 0)
@@ -243,7 +243,7 @@ func (l *LocalChannel) GetPidsByLocalPorts(ctx context.Context, localPorts []str
 			return nil, fmt.Errorf("failed to get pid by %s, %v", port, err)
 		}
 		log.Infof(ctx, "get pids by %s port returns %v", port, pids)
-		if pids != nil && len(pids) > 0 {
+		if len(pids) > 0 {
 			result = append(result, pids...)
 		}
 	}
