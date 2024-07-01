@@ -74,7 +74,7 @@ func (l *NSExecChannel) Run(ctx context.Context, script, args string) *spec.Resp
 		programPath = path.Join(programPath, spec.BinPath)
 	}
 	bin := path.Join(programPath, spec.NSExecBin)
-	log.Debugf(ctx,`Command: %s %s "%s"`, bin, ns_script, args)
+	log.Debugf(ctx, `Command: %s %s "%s"`, bin, ns_script, args)
 
 	split := strings.Split(ns_script, " ")
 
@@ -83,7 +83,7 @@ func (l *NSExecChannel) Run(ctx context.Context, script, args string) *spec.Resp
 	outMsg := string(output)
 	log.Debugf(ctx, "Command Result, output: %v, err: %v", outMsg, err)
 	// TODO shell-init错误
-	if strings.TrimSpace(outMsg) != "" {
+	if strings.TrimSpace(outMsg) != "" && (strings.HasPrefix(strings.TrimSpace(outMsg), "{") || strings.HasPrefix(strings.TrimSpace(outMsg), "[")) {
 		resp := spec.Decode(outMsg, nil)
 		if resp.Code != spec.ResultUnmarshalFailed.Code {
 			return resp
