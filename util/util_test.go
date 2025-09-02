@@ -16,9 +16,17 @@
 
 package util
 
-import "testing"
+import (
+	"runtime"
+	"testing"
+)
 
 func TestIsExist_ForMountPoint(t *testing.T) {
+	// Skip this test on Windows as it tests Unix-specific mount points
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping mount point test on Windows")
+	}
+
 	tests := []struct {
 		device string
 		want   bool
