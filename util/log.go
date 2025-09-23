@@ -27,9 +27,9 @@ import (
 )
 
 const (
-	Blade = 1
-	Bin   = 2
-	Custom= 3
+	Blade  = 1
+	Bin    = 2
+	Custom = 3
 )
 
 const BladeLog = "chaosblade.log"
@@ -108,19 +108,19 @@ func logger(uid, funcName, msg string, level logrus.Level) {
 	})
 	switch level {
 	case logrus.PanicLevel:
-		entry.Panicf(msg)
+		entry.Panic(msg)
 	case logrus.FatalLevel:
-		entry.Fatalf(msg)
+		entry.Fatal(msg)
 	case logrus.ErrorLevel:
-		entry.Errorf(msg)
+		entry.Error(msg)
 	case logrus.WarnLevel:
-		entry.Warnf(msg)
+		entry.Warn(msg)
 	case logrus.InfoLevel:
 		entry.Info(msg)
 	case logrus.DebugLevel:
-		entry.Debugf(msg)
+		entry.Debug(msg)
 	case logrus.TraceLevel:
-		entry.Tracef(msg)
+		entry.Trace(msg)
 	default:
 		Errorf(uid, funcName, msg)
 	}
