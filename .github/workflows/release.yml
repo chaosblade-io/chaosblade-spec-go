@@ -11,75 +11,75 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.20'
-        cache: true
-        
-    - name: Verify dependencies
-      run: go mod verify
-      
-    - name: Download dependencies
-      run: go mod download
-      
-    - name: Run tests
-      run: go test -v ./...
-      
-    - name: Run vet
-      run: go vet ./...
-      
-    - name: Check for race conditions
-      run: go test -race ./...
-      
-    - name: Generate changelog
-      id: changelog
-      run: |
-        # Get previous tag
-        PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
-        
-        if [ -z "$PREVIOUS_TAG" ]; then
-          echo "This is the first release"
-          cat > changelog.md << 'EOF'
-        ## Changelog
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-        This is the first release of chaosblade-spec-go.
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.25'
+          cache: true
 
-        ### Features
-        - Chaos experiment specification definition
-        - Support for multiple operating systems (Linux, Windows, macOS)
-        - Unified experiment execution interface
-        - Basic components including logging and utility functions
-        EOF
-        else
-          echo "Generating changelog from $PREVIOUS_TAG to $GITHUB_REF_NAME"
-          cat > changelog.md << EOF
-        ## Changelog
+      - name: Verify dependencies
+        run: go mod verify
 
-        ### From $PREVIOUS_TAG to $GITHUB_REF_NAME
+      - name: Download dependencies
+        run: go mod download
 
-        \`\`\`
-        $(git log --pretty=format:'- %s (%h)' $PREVIOUS_TAG..HEAD)
-        \`\`\`
-        EOF
-        fi
-        
-        echo "changelog<<EOF" >> $GITHUB_OUTPUT
-        cat changelog.md >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
-        
-    - name: Create Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref_name }}
-        release_name: Release ${{ github.ref_name }}
-        body: ${{ steps.changelog.outputs.changelog }}
-        draft: false
-        prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
+      - name: Run tests
+        run: go test -v ./...
+
+      - name: Run vet
+        run: go vet ./...
+
+      - name: Check for race conditions
+        run: go test -race ./...
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get previous tag
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+          
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "This is the first release"
+            cat > changelog.md << 'EOF'
+          ## Changelog
+          
+          This is the first release of chaosblade-spec-go.
+          
+          ### Features
+          - Chaos experiment specification definition
+          - Support for multiple operating systems (Linux, Windows, macOS)
+          - Unified experiment execution interface
+          - Basic components including logging and utility functions
+          EOF
+          else
+            echo "Generating changelog from $PREVIOUS_TAG to $GITHUB_REF_NAME"
+            cat > changelog.md << EOF
+          ## Changelog
+          
+          ### From $PREVIOUS_TAG to $GITHUB_REF_NAME
+          
+          \`\`\`
+          $(git log --pretty=format:'- %s (%h)' $PREVIOUS_TAG..HEAD)
+          \`\`\`
+          EOF
+          fi
+          
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat changelog.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
