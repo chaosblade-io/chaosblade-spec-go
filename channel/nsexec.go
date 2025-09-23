@@ -2,16 +2,18 @@ package channel
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"github.com/chaosblade-io/chaosblade-spec-go/log"
-	"github.com/chaosblade-io/chaosblade-spec-go/spec"
-	"github.com/chaosblade-io/chaosblade-spec-go/util"
 	"os"
 	"os/exec"
 	"path"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/chaosblade-io/chaosblade-spec-go/log"
+	"github.com/chaosblade-io/chaosblade-spec-go/spec"
+	"github.com/chaosblade-io/chaosblade-spec-go/util"
 )
 
 const (
@@ -112,7 +114,7 @@ func (l *NSExecChannel) GetPidsByProcessCmdName(processName string, ctx context.
 		fmt.Sprintf(`-l %s %s | grep -v -w chaos_killprocess | grep -v -w chaos_stopprocess | awk '{print $1}' | tr '\n' ' '`,
 			processName, excludeGrepInfo))
 	if !response.Success {
-		return nil, fmt.Errorf(response.Err)
+		return nil, errors.New(response.Err)
 	}
 	pidString := response.Result.(string)
 	pids := strings.Fields(strings.TrimSpace(pidString))
@@ -153,7 +155,7 @@ func (l *NSExecChannel) GetPidsByProcessName(processName string, ctx context.Con
 		fmt.Sprintf(`%s | grep "%s" %s %s | grep -v -w grep | grep -v -w chaos_killprocess | grep -v -w chaos_stopprocess | awk '{print $2}' | tr '\n' ' '`,
 			psArgs, processName, otherGrepInfo, excludeGrepInfo))
 	if !response.Success {
-		return nil, fmt.Errorf(response.Err)
+		return nil, errors.New(response.Err)
 	}
 	pidString := strings.TrimSpace(response.Result.(string))
 	if pidString == "" {

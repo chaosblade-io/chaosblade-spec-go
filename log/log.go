@@ -3,9 +3,10 @@ package log
 import (
 	"context"
 	"fmt"
+	"runtime"
+
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
 	"github.com/sirupsen/logrus"
-	"runtime"
 )
 
 func Panicf(ctx context.Context, format string, a ...interface{}) {

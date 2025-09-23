@@ -168,7 +168,7 @@ func GetSpecifyingUserHome(username string) string {
 
 // Curl url
 func Curl(ctx context.Context, url string) (string, error, int) {
-	log.Infof(ctx, url)
+	log.Infof(ctx, "%s", url)
 	trans := http.Transport{
 		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
 			return net.DialTimeout(network, addr, 10*time.Second)
