@@ -35,15 +35,18 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/chaosblade-io/chaosblade-spec-go/log"
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
-	"github.com/sirupsen/logrus"
 )
 
-var proPath string
-var binPath string
-var libPath string
-var yamlPath string
+var (
+	proPath  string
+	binPath  string
+	libPath  string
+	yamlPath string
+)
 
 func init() {
 	rand.Seed(time.Now().UnixNano())

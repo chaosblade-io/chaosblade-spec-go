@@ -28,7 +28,7 @@ import (
 
 // CreateYamlFile converts the spec.Models to spec file
 func CreateYamlFile(models *spec.Models, specFile string) error {
-	file, err := os.OpenFile(specFile, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0755)
+	file, err := os.OpenFile(specFile, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0o755)
 	if err != nil {
 		return err
 	}

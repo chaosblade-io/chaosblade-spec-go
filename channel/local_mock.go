@@ -53,7 +53,7 @@ func NewMockLocalChannel() spec.Channel {
 	}
 }
 
-func (l *MockLocalChannel) Name() string  {
+func (l *MockLocalChannel) Name() string {
 	return "mock"
 }
 
@@ -72,6 +72,7 @@ func (mlc *MockLocalChannel) GetPsArgs(ctx context.Context) string {
 func (mlc *MockLocalChannel) IsAlpinePlatform(ctx context.Context) bool {
 	return false
 }
+
 func (mlc *MockLocalChannel) IsAllCommandsAvailable(ctx context.Context, commandNames []string) (*spec.Response, bool) {
 	return nil, false
 }
@@ -107,27 +108,35 @@ func (mlc *MockLocalChannel) GetScriptPath() string {
 var defaultGetPidsByProcessCmdNameFunc = func(processName string, ctx context.Context) ([]string, error) {
 	return []string{}, nil
 }
+
 var defaultGetPidsByProcessNameFunc = func(processName string, ctx context.Context) ([]string, error) {
 	return []string{}, nil
 }
+
 var defaultGetPsArgsFunc = func(ctx context.Context) string {
 	return "-eo user,pid,ppid,args"
 }
+
 var defaultIsCommandAvailableFunc = func(ctx context.Context, commandName string) bool {
 	return false
 }
+
 var defaultProcessExistsFunc = func(pid string) (bool, error) {
 	return false, nil
 }
+
 var defaultGetPidUserFunc = func(pid string) (string, error) {
 	return "admin", nil
 }
+
 var defaultGetPidsByLocalPortsFunc = func(ctx context.Context, localPorts []string) ([]string, error) {
 	return []string{}, nil
 }
+
 var defaultGetPidsByLocalPortFunc = func(ctx context.Context, localPort string) ([]string, error) {
 	return []string{}, nil
 }
+
 var defaultRunFunc = func(ctx context.Context, script, args string) *spec.Response {
 	return spec.ReturnSuccess("success")
 }

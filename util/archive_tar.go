@@ -9,7 +9,6 @@ import (
 )
 
 func ArchiveTar(file string, writer *tar.Writer) error {
-
 	return filepath.Walk(file, func(path string, fileInfo os.FileInfo, err error) error {
 		if fileInfo == nil {
 			return err
@@ -33,7 +32,6 @@ func ArchiveTar(file string, writer *tar.Writer) error {
 			if file, err := os.Open(path); err != nil {
 				return err
 			} else {
-
 				if header, err := tar.FileInfoHeader(fileInfo, ""); err != nil {
 					return err
 				} else {
@@ -49,7 +47,6 @@ func ArchiveTar(file string, writer *tar.Writer) error {
 						return err
 					}
 				}
-
 			}
 			return nil
 		}(file, path, fileInfo, writer)

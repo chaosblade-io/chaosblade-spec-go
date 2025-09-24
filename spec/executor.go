@@ -46,7 +46,7 @@ type ExpModel struct {
 	// Categories
 	ActionCategories []string `json:"categories,omitempty"`
 
-	ActionProcessHang bool     `yaml:"actionProcessHang"`
+	ActionProcessHang bool `yaml:"actionProcessHang"`
 }
 
 // ExpExecutor defines the ExpExecutor interface

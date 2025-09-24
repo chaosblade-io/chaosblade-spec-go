@@ -28,14 +28,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/shirou/gopsutil/process"
+
 	"github.com/chaosblade-io/chaosblade-spec-go/log"
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
 	"github.com/chaosblade-io/chaosblade-spec-go/util"
-	"github.com/shirou/gopsutil/process"
 )
 
-type LocalChannel struct {
-}
+type LocalChannel struct{}
 
 // NewLocalChannel returns a local channel for invoking the host command
 func NewLocalChannel() spec.Channel {
@@ -182,7 +182,7 @@ func getExcludeProcesses(ctx context.Context) []string {
 }
 
 func (l *LocalChannel) GetPsArgs(ctx context.Context) string {
-	var psArgs = "-eo user,pid,ppid,args"
+	psArgs := "-eo user,pid,ppid,args"
 	if l.IsAlpinePlatform(ctx) {
 		psArgs = "-o user,pid,ppid,args"
 	}
@@ -190,7 +190,7 @@ func (l *LocalChannel) GetPsArgs(ctx context.Context) string {
 }
 
 func (l *LocalChannel) IsAlpinePlatform(ctx context.Context) bool {
-	var osVer = ""
+	osVer := ""
 	if util.IsExist("/etc/os-release") {
 		response := l.Run(ctx, "awk", "-F '=' '{if ($1 == \"ID\") {print $2;exit 0}}' /etc/os-release")
 		if response.Success {
@@ -236,7 +236,7 @@ func (l *LocalChannel) GetPidsByLocalPorts(ctx context.Context, localPorts []str
 	if len(localPorts) == 0 {
 		return nil, fmt.Errorf("the local port parameter is empty")
 	}
-	var result = make([]string, 0)
+	result := make([]string, 0)
 	for _, port := range localPorts {
 		pids, err := l.GetPidsByLocalPort(ctx, port)
 		if err != nil {

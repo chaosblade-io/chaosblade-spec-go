@@ -22,7 +22,6 @@ import (
 
 // Channel is an interface for command invocation
 type Channel interface {
-
 	// channel name unique
 	Name() string
 

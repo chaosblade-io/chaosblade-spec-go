@@ -19,8 +19,9 @@ package spec
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 type CodeType struct {
@@ -177,7 +178,7 @@ func Success() *Response {
 	return ReturnSuccess(nil)
 }
 
-//ToString
+// ToString
 func (response *Response) ToString() string {
 	bytes, err := json.MarshalIndent(response, "", "\t")
 	if err != nil {

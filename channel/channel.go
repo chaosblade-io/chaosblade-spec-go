@@ -29,9 +29,11 @@ import (
 )
 
 // grep ${key}
-const ProcessKey = "process"
-const ExcludeProcessKey = "excludeProcess"
-const ProcessCommandKey = "processCommand"
+const (
+	ProcessKey        = "process"
+	ExcludeProcessKey = "excludeProcess"
+	ProcessCommandKey = "processCommand"
+)
 
 func GetPidsByLocalPort(ctx context.Context, channel spec.Channel, localPort string) ([]string, error) {
 	available := channel.IsCommandAvailable(ctx, "ss")
