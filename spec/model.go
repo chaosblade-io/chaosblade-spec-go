@@ -68,10 +68,10 @@ type ExpActionCommandSpec interface {
 	// Flags returns the list of flags supported by the action
 	Flags() []ExpFlagSpec
 
-	//Example returns command example
+	// Example returns command example
 	Example() string
 
-	//Example returns command example
+	// Example returns command example
 	SetExample(example string)
 
 	// ExpExecutor returns the action command ExpExecutor

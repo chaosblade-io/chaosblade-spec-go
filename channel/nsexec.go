@@ -186,7 +186,7 @@ func (l *NSExecChannel) IsCommandAvailable(ctx context.Context, commandName stri
 }
 
 func (l *NSExecChannel) GetPsArgs(ctx context.Context) string {
-	var psArgs = "-eo user,pid,ppid,args"
+	psArgs := "-eo user,pid,ppid,args"
 	if l.IsAlpinePlatform(ctx) {
 		psArgs = "-o user,pid,ppid,args"
 	}
@@ -194,7 +194,7 @@ func (l *NSExecChannel) GetPsArgs(ctx context.Context) string {
 }
 
 func (l *NSExecChannel) IsAlpinePlatform(ctx context.Context) bool {
-	var osVer = ""
+	osVer := ""
 	if util.IsExist("/etc/os-release") {
 		response := l.Run(ctx, "awk", "-F '=' '{if ($1 == \"ID\") {print $2;exit 0}}' /etc/os-release")
 		if response.Success {

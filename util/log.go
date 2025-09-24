@@ -82,21 +82,27 @@ func InitLog(programType int) {
 func Panicf(uid, funcName, msg string) {
 	logger(uid, funcName, msg, logrus.PanicLevel)
 }
+
 func Fatalf(uid, funcName, msg string) {
 	logger(uid, funcName, msg, logrus.FatalLevel)
 }
+
 func Errorf(uid, funcName, msg string) {
 	logger(uid, funcName, msg, logrus.ErrorLevel)
 }
+
 func Warnf(uid, funcName, msg string) {
 	logger(uid, funcName, msg, logrus.WarnLevel)
 }
+
 func Infof(uid, funcName, msg string) {
 	logger(uid, funcName, msg, logrus.InfoLevel)
 }
+
 func Debugf(uid, funcName, msg string) {
 	logger(uid, funcName, msg, logrus.DebugLevel)
 }
+
 func Tracef(uid, funcName, msg string) {
 	logger(uid, funcName, msg, logrus.TraceLevel)
 }
