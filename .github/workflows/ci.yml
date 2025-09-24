@@ -44,4 +44,5 @@ jobs:
       - name: Run vet
         run: go vet ./...
 
-        
+      - name: Run code style and import order verification
+        run: make verify
