@@ -19,12 +19,11 @@ go 1.25
 require (
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/sirupsen/logrus v1.8.3
-	gopkg.in/natefinch/lumberjack.v2 v2.0.0
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/yaml.v2 v2.2.8
 )
 
 require (
-	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/tklauser/go-sysconf v0.3.9 // indirect
 	github.com/tklauser/numcpus v0.3.0 // indirect
