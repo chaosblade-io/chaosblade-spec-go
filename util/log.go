@@ -34,6 +34,12 @@ const (
 
 const BladeLog = "chaosblade.log"
 
+// LogLevelEnv carries the effective log level from the blade CLI process to the
+// exec binaries it spawns. Those binaries have no flag channel of their own and
+// would otherwise always log at the default level; the CLI exports its resolved
+// level here (children inherit the parent environment) and they read it back.
+const LogLevelEnv = "CHAOSBLADE_LOG_LEVEL"
+
 var (
 	Debug    bool
 	LogPath  string
@@ -76,7 +82,24 @@ func InitLog(programType int) {
 
 	if Debug {
 		logrus.SetLevel(logrus.DebugLevel)
+	} else {
+		levelStr := LogLevel
+		// Spawned exec binaries (programType != Blade) have no flag channel of
+		// their own; inherit the level the parent blade process exported. The CLI
+		// itself keeps flag precedence so a stray environment variable in the
+		// user's shell cannot override an explicit --log-level.
+		if programType != Blade {
+			if env := os.Getenv(LogLevelEnv); env != "" {
+				levelStr = env
+			}
+		}
+		if lvl, err := logrus.ParseLevel(levelStr); err == nil {
+			logrus.SetLevel(lvl)
+		}
 	}
+	// Export the effective level so any child process spawned from here (the
+	// per-experiment exec binaries) inherits it via the environment.
+	os.Setenv(LogLevelEnv, logrus.GetLevel().String())
 }
 
 func Panicf(uid, funcName, msg string) {
