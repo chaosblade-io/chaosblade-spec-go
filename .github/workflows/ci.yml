@@ -66,7 +66,7 @@ jobs:
         run: make verify
 
       - name: Check License Header
-        uses: korandoru/hawkeye@7ffde2c5fd29f3c486e4a6510436dca54f386e2a # v6
+        uses: korandoru/hawkeye@48b25d87e62985677c4c06aab8ff6f75dd57835c # v7.3.0
 
   ci-gate:
     name: CI Gate
